@@ -1,0 +1,127 @@
+{
+  "sources": [
+    "Hazel2.png",
+    "source-assets/characters/hazel-direction-raw.png"
+  ],
+  "image": "assets/characters/hazel-4dir.png",
+  "frameWidth": 192,
+  "frameHeight": 360,
+  "columns": 11,
+  "rows": 4,
+  "frameCount": 44,
+  "displayScale": 0.64,
+  "frames": {
+    "idleRight": 0,
+    "walkRight1": 1,
+    "walkRight2": 2,
+    "walkRight3": 3,
+    "walkRight4": 4,
+    "walkRight5": 5,
+    "walkRight6": 6,
+    "walkRight7": 7,
+    "walkRight8": 8,
+    "idleLeft": 9,
+    "walkLeft1": 10,
+    "walkLeft2": 11,
+    "walkLeft3": 12,
+    "walkLeft4": 13,
+    "walkLeft5": 14,
+    "walkLeft6": 15,
+    "walkLeft7": 16,
+    "walkLeft8": 17,
+    "idleDown1": 18,
+    "idleDown2": 19,
+    "walkDown1": 20,
+    "walkDown2": 21,
+    "walkDown3": 22,
+    "walkDown4": 23,
+    "walkDown5": 24,
+    "walkDown6": 25,
+    "walkDown7": 26,
+    "walkDown8": 27,
+    "idleUp1": 28,
+    "idleUp2": 29,
+    "walkUp1": 30,
+    "walkUp2": 31,
+    "walkUp3": 32,
+    "walkUp4": 33,
+    "walkUp5": 34,
+    "walkUp6": 35,
+    "walkUp7": 36,
+    "walkUp8": 37,
+    "think1": 38,
+    "think2": 39,
+    "surprised1": 40,
+    "surprised2": 41,
+    "talk1": 42,
+    "talk2": 43
+  },
+  "animations": {
+    "idleRight": [
+      0
+    ],
+    "walkRight": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "idleLeft": [
+      9
+    ],
+    "walkLeft": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "idleDown": [
+      18,
+      19
+    ],
+    "walkDown": [
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27
+    ],
+    "idleUp": [
+      28,
+      29
+    ],
+    "walkUp": [
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37
+    ],
+    "think": [
+      38,
+      39
+    ],
+    "surprised": [
+      40,
+      41
+    ],
+    "talk": [
+      42,
+      43
+    ]
+  }
+}

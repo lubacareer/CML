@@ -1,0 +1,81 @@
+{
+  "id": "street",
+  "backgroundKey": "street",
+  "playerStart": { "x": 610, "y": 650 },
+  "walkBaselineY": 650,
+  "navigation": {
+    "walkableAreas": [
+      {
+        "id": "sidewalk",
+        "points": [
+          { "x": 0, "y": 585 },
+          { "x": 1280, "y": 555 },
+          { "x": 1280, "y": 705 },
+          { "x": 0, "y": 710 }
+        ]
+      }
+    ],
+    "nodes": [
+      { "id": "left_sidewalk", "x": 180, "y": 655, "links": ["center_sidewalk"] },
+      { "id": "center_sidewalk", "x": 610, "y": 650, "links": ["left_sidewalk", "right_sidewalk"] },
+      { "id": "right_sidewalk", "x": 1040, "y": 630, "links": ["center_sidewalk"] }
+    ]
+  },
+  "exits": [
+    {
+      "id": "agency_door",
+      "targetScene": "office",
+      "x": 405,
+      "y": 205,
+      "width": 210,
+      "height": 280
+    }
+  ],
+  "hotspots": [
+    {
+      "id": "agency_sign",
+      "name": "Agency sign",
+      "x": 380,
+      "y": 85,
+      "width": 380,
+      "height": 120,
+      "defaultVerb": "look",
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "P. Hazel Detective Agency. The P stands for plausibly professional."
+        }
+      }
+    },
+    {
+      "id": "cafe",
+      "name": "Daisy's Cafe",
+      "x": 0,
+      "y": 120,
+      "width": 235,
+      "height": 420,
+      "defaultVerb": "look",
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "The cafe smells like coffee and possible testimony. The door will open in a later sprint."
+        }
+      }
+    },
+    {
+      "id": "oddities_shop",
+      "name": "Oddities and antiques",
+      "x": 965,
+      "y": 95,
+      "width": 315,
+      "height": 435,
+      "defaultVerb": "look",
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "Curious contraptions inside. Also probably several things that should not be wound up."
+        }
+      }
+    }
+  ]
+}

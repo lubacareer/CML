@@ -1,0 +1,58 @@
+{
+  "source": "Hazel2.png",
+  "image": "assets/characters/hazel-normalized.png",
+  "frameWidth": 192,
+  "frameHeight": 360,
+  "frameCount": 17,
+  "displayScale": 0.5,
+  "frames": {
+    "sideIdleRight": 0,
+    "walk01": 1,
+    "walk02": 2,
+    "walk03": 3,
+    "walk04": 4,
+    "walk05": 5,
+    "walk06": 6,
+    "walk07": 7,
+    "walk08": 8,
+    "frontIdle01": 9,
+    "frontIdle02": 10,
+    "think01": 11,
+    "think02": 12,
+    "surprised01": 13,
+    "surprised02": 14,
+    "talk01": 15,
+    "talk02": 16
+  },
+  "animations": {
+    "idleSide": [
+      0
+    ],
+    "walk": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "idleFront": [
+      9,
+      10
+    ],
+    "think": [
+      11,
+      12
+    ],
+    "surprised": [
+      13,
+      14
+    ],
+    "talk": [
+      15,
+      16
+    ]
+  }
+}

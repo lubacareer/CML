@@ -1,0 +1,48 @@
+{
+  "office.phone.look": {
+    "speaker": "Hazel",
+    "lines": [
+      "A ringing phone.",
+      "In detective work, that usually means either a client or a bill collector.",
+      "Statistically, both are bad."
+    ]
+  },
+  "case001.phone.answer": {
+    "speaker": "Client",
+    "lines": [
+      "Detective Hazel? I need help.",
+      "Something terrible has happened.",
+      "My argument disappeared halfway through dinner, and now my family agrees with everyone.",
+      "Even the cat."
+    ],
+    "choices": [
+      {
+        "text": "That does sound unnatural.",
+        "next": "case001.phone.hazel_accepts"
+      },
+      {
+        "text": "Are you sure the cat was involved?",
+        "next": "case001.phone.cat"
+      }
+    ]
+  },
+  "case001.phone.cat": {
+    "speaker": "Client",
+    "lines": [
+      "The cat had motive, opportunity, and a tiny bow tie.",
+      "I know what I saw."
+    ],
+    "next": "case001.phone.hazel_accepts"
+  },
+  "case001.phone.hazel_accepts": {
+    "speaker": "Hazel",
+    "lines": [
+      "Fine. I will investigate the disappearance of logic.",
+      "But if this turns out to be a metaphor, I charge double."
+    ],
+    "effects": [
+      { "type": "setFlag", "flag": "case001_started" },
+      { "type": "setFlag", "flag": "map_unlocked" }
+    ]
+  }
+}
