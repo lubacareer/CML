@@ -15,10 +15,30 @@
         ]
       }
     ],
+    "blockers": [
+      {
+        "id": "cafe_furniture",
+        "points": [
+          { "x": 0, "y": 445 },
+          { "x": 190, "y": 440 },
+          { "x": 190, "y": 650 },
+          { "x": 0, "y": 650 }
+        ]
+      },
+      {
+        "id": "bicycle_and_lamp",
+        "points": [
+          { "x": 755, "y": 455 },
+          { "x": 1030, "y": 455 },
+          { "x": 1040, "y": 650 },
+          { "x": 745, "y": 650 }
+        ]
+      }
+    ],
     "nodes": [
-      { "id": "left_sidewalk", "x": 180, "y": 655, "links": ["center_sidewalk"] },
-      { "id": "center_sidewalk", "x": 610, "y": 650, "links": ["left_sidewalk", "right_sidewalk"] },
-      { "id": "right_sidewalk", "x": 1040, "y": 630, "links": ["center_sidewalk"] }
+      { "id": "left_sidewalk", "x": 180, "y": 670, "links": ["center_sidewalk"] },
+      { "id": "center_sidewalk", "x": 610, "y": 670, "links": ["left_sidewalk", "right_sidewalk"] },
+      { "id": "right_sidewalk", "x": 1120, "y": 670, "links": ["center_sidewalk"] }
     ]
   },
   "exits": [

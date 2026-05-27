@@ -1,7 +1,7 @@
 {
   "id": "office",
   "backgroundKey": "office",
-  "playerStart": { "x": 300, "y": 610 },
+  "playerStart": { "x": 520, "y": 650 },
   "walkBaselineY": 610,
   "navigation": {
     "walkableAreas": [
@@ -11,8 +11,8 @@
           { "x": 180, "y": 585 },
           { "x": 330, "y": 550 },
           { "x": 385, "y": 610 },
-          { "x": 380, "y": 690 },
-          { "x": 120, "y": 690 },
+          { "x": 385, "y": 710 },
+          { "x": 120, "y": 710 },
           { "x": 145, "y": 610 }
         ]
       },
@@ -21,17 +21,17 @@
         "points": [
           { "x": 230, "y": 565 },
           { "x": 1045, "y": 555 },
-          { "x": 1130, "y": 690 },
-          { "x": 160, "y": 690 }
+          { "x": 1130, "y": 710 },
+          { "x": 160, "y": 710 }
         ]
       },
       {
         "id": "door_path",
         "points": [
-          { "x": 900, "y": 410 },
-          { "x": 1070, "y": 395 },
-          { "x": 1110, "y": 620 },
-          { "x": 900, "y": 630 }
+          { "x": 1052, "y": 590 },
+          { "x": 1084, "y": 590 },
+          { "x": 1084, "y": 675 },
+          { "x": 1052, "y": 675 }
         ]
       },
       {
@@ -39,8 +39,8 @@
         "points": [
           { "x": 1040, "y": 560 },
           { "x": 1180, "y": 555 },
-          { "x": 1215, "y": 670 },
-          { "x": 1040, "y": 690 }
+          { "x": 1215, "y": 690 },
+          { "x": 1040, "y": 710 }
         ]
       }
     ],
@@ -50,19 +50,76 @@
         "points": [
           { "x": 355, "y": 350 },
           { "x": 900, "y": 350 },
-          { "x": 895, "y": 575 },
-          { "x": 365, "y": 575 }
+          { "x": 895, "y": 640 },
+          { "x": 365, "y": 640 }
+        ]
+      },
+      {
+        "id": "left_side_table",
+        "points": [
+          { "x": 0, "y": 515 },
+          { "x": 155, "y": 505 },
+          { "x": 180, "y": 690 },
+          { "x": 0, "y": 700 }
+        ]
+      },
+      {
+        "id": "left_chair",
+        "points": [
+          { "x": 120, "y": 445 },
+          { "x": 300, "y": 440 },
+          { "x": 335, "y": 590 },
+          { "x": 305, "y": 690 },
+          { "x": 145, "y": 690 },
+          { "x": 125, "y": 570 }
+        ]
+      },
+      {
+        "id": "orange_chair",
+        "points": [
+          { "x": 690, "y": 515 },
+          { "x": 885, "y": 510 },
+          { "x": 930, "y": 690 },
+          { "x": 705, "y": 690 },
+          { "x": 675, "y": 575 }
+        ]
+      },
+      {
+        "id": "purple_chair",
+        "points": [
+          { "x": 860, "y": 505 },
+          { "x": 1040, "y": 505 },
+          { "x": 1050, "y": 690 },
+          { "x": 875, "y": 690 }
+        ]
+      },
+      {
+        "id": "coffee_station",
+        "points": [
+          { "x": 1085, "y": 480 },
+          { "x": 1235, "y": 480 },
+          { "x": 1235, "y": 710 },
+          { "x": 1085, "y": 710 }
+        ]
+      },
+      {
+        "id": "door_panel",
+        "points": [
+          { "x": 915, "y": 115 },
+          { "x": 1135, "y": 115 },
+          { "x": 1135, "y": 590 },
+          { "x": 915, "y": 590 }
         ]
       }
     ],
     "nodes": [
-      { "id": "left_mid", "x": 285, "y": 585, "links": ["left_front"] },
-      { "id": "left_front", "x": 300, "y": 620, "links": ["left_mid", "center_front"] },
-      { "id": "center_front", "x": 540, "y": 650, "links": ["left_front", "right_front"] },
-      { "id": "right_front", "x": 900, "y": 650, "links": ["center_front", "right_mid", "coffee_front"] },
-      { "id": "right_mid", "x": 970, "y": 560, "links": ["right_front", "door_front"] },
-      { "id": "door_front", "x": 1025, "y": 475, "links": ["right_mid"] },
-      { "id": "coffee_front", "x": 1100, "y": 625, "links": ["right_front"] }
+      { "id": "left_mid", "x": 340, "y": 585, "links": ["left_front"] },
+      { "id": "left_front", "x": 340, "y": 690, "links": ["left_mid", "center_front"] },
+      { "id": "center_front", "x": 540, "y": 700, "links": ["left_front", "right_front"] },
+      { "id": "right_front", "x": 1060, "y": 700, "links": ["center_front", "right_mid", "coffee_front"] },
+      { "id": "right_mid", "x": 1060, "y": 620, "links": ["right_front", "door_front"] },
+      { "id": "door_front", "x": 1072, "y": 620, "links": ["right_mid"] },
+      { "id": "coffee_front", "x": 1060, "y": 675, "links": ["right_front"] }
     ]
   },
   "exits": [

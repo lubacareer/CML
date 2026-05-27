@@ -1,7 +1,8 @@
-import type { Point2D, SceneNavigationData, WalkableAreaData } from '../game/types';
+import type { Point2D, SceneNavigationData } from '../game/types';
 
 const SEGMENT_SAMPLE_DISTANCE = 12;
 const POINT_EPSILON = 0.001;
+const BOUNDARY_NUDGE_DISTANCES = [24, 40, 64];
 
 const distanceBetween = (a: Point2D, b: Point2D) => Math.hypot(a.x - b.x, a.y - b.y);
 
@@ -83,27 +84,65 @@ const findNearestPointOnSegment = (point: Point2D, start: Point2D, end: Point2D)
     };
 };
 
+const resolveBoundaryCandidate = (
+    point: Point2D,
+    candidate: Point2D,
+    navigation: SceneNavigationData
+) => {
+    const deltaX = candidate.x - point.x;
+    const deltaY = candidate.y - point.y;
+    const distance = Math.hypot(deltaX, deltaY);
+
+    if (distance <= POINT_EPSILON) {
+        const nearbyCandidates = [
+            candidate,
+            { x: candidate.x, y: candidate.y - 2 },
+            { x: candidate.x + 2, y: candidate.y },
+            { x: candidate.x, y: candidate.y + 2 },
+            { x: candidate.x - 2, y: candidate.y }
+        ];
+
+        return nearbyCandidates.find((nearbyCandidate) => (
+            pointIsInWalkableArea(nearbyCandidate, navigation)
+        ));
+    }
+
+    const directionX = deltaX / distance;
+    const directionY = deltaY / distance;
+
+    return BOUNDARY_NUDGE_DISTANCES
+        .map((nudgeDistance) => ({
+            x: candidate.x + (directionX * nudgeDistance),
+            y: candidate.y + (directionY * nudgeDistance)
+        }))
+        .find((nudgedCandidate) => pointIsInWalkableArea(nudgedCandidate, navigation));
+};
+
 const findNearestWalkableBoundaryPoint = (
     point: Point2D,
-    areas: WalkableAreaData[],
     navigation: SceneNavigationData
 ) => {
     let nearestPoint: Point2D | undefined;
     let nearestDistance = Number.POSITIVE_INFINITY;
+    const boundaryAreas = [
+        ...navigation.walkableAreas,
+        ...(navigation.blockers ?? [])
+    ];
 
-    areas.forEach((area) => {
+    boundaryAreas.forEach((area) => {
         area.points.forEach((start, index) => {
             const end = area.points[(index + 1) % area.points.length];
             const candidate = findNearestPointOnSegment(point, start, end);
+            const walkableCandidate = resolveBoundaryCandidate(point, candidate, navigation);
 
-            if (!pointIsInWalkableArea(candidate, navigation)) {
+            if (!walkableCandidate) {
                 return;
             }
 
-            const candidateDistance = distanceBetween(point, candidate);
+            const candidateDistance = distanceBetween(point, walkableCandidate);
 
             if (candidateDistance < nearestDistance) {
-                nearestPoint = candidate;
+                nearestPoint = walkableCandidate;
                 nearestDistance = candidateDistance;
             }
         });
@@ -120,7 +159,7 @@ export const resolveWalkableTarget = (
         return point;
     }
 
-    return findNearestWalkableBoundaryPoint(point, navigation.walkableAreas, navigation);
+    return findNearestWalkableBoundaryPoint(point, navigation);
 };
 
 const reconstructPath = (
@@ -199,6 +238,10 @@ export const findNavigationPath = (
             const linkedNode = nodeById[linkedNodeId];
 
             if (!linkedNode) {
+                return;
+            }
+
+            if (!segmentStaysInWalkableArea(currentNode, linkedNode, navigation)) {
                 return;
             }
 
