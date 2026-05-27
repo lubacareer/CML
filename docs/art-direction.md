@@ -28,6 +28,7 @@ New backgrounds should preserve a clear lower-third walkable lane and avoid plac
 - `public/assets/backgrounds/alley.png`: narrow alley investigation scene.
 - `public/assets/characters/npcs/cafe_owner.png`: Daisy, static cafe owner NPC.
 - `public/assets/characters/npcs/overly_rational_pigeon.png`: static pigeon NPC.
+- `public/assets/items/cold-coffee.png`: compact transparent inventory icon for Cold Coffee.
 - `public/assets/items/invalid_alibi.png`: inventory/puzzle item prop.
 
 ## Prompt Pattern

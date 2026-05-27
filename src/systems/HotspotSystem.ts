@@ -4,7 +4,12 @@ export const getVisibleHotspots = (
     hotspots: HotspotData[],
     flags: Record<string, boolean> = {}
 ) => hotspots.filter((hotspot) => {
-    if (hotspot.requiredFlag && !flags[hotspot.requiredFlag]) {
+    const requiredFlags = [
+        hotspot.requiredFlag,
+        ...(hotspot.requiredFlags ?? [])
+    ].filter((flag): flag is string => flag !== undefined);
+
+    if (requiredFlags.some((flag) => !flags[flag])) {
         return false;
     }
 

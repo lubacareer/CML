@@ -13,6 +13,7 @@ Initial generated assets are preserved in the root folder and copied into the ru
 - `source-assets/backgrounds/narrow-alley.png` -> `public/assets/backgrounds/alley.png`
 - `source-assets/characters/cafe_owner-raw.png` -> `public/assets/characters/npcs/cafe_owner.png`
 - `source-assets/characters/overly_rational_pigeon-raw.png` -> `public/assets/characters/npcs/overly_rational_pigeon.png`
+- `source-assets/items/cold_coffee-raw.png` -> `public/assets/items/cold-coffee.png`
 - `source-assets/items/invalid_alibi-raw.png` -> `public/assets/items/invalid_alibi.png`
 
 The source images are larger than the fixed logical resolution of `1280x720`. Sprint 1 should scale scene backgrounds in Phaser rather than modifying these source files.

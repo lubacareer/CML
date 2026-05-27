@@ -1,7 +1,11 @@
 import type { InventoryView } from '../game/types';
 
+const MIN_SLOT_COUNT = 8;
+const GRID_COLUMNS = 4;
+
 export class InventoryBar {
     private readonly root: HTMLElement;
+    private readonly title: HTMLElement;
     private readonly itemsRoot: HTMLElement;
     private readonly status: HTMLElement;
     private view: InventoryView = { items: [] };
@@ -16,13 +20,18 @@ export class InventoryBar {
         this.root.setAttribute('aria-label', 'Inventory');
         this.root.hidden = true;
 
+        this.title = document.createElement('h2');
+        this.title.className = 'inventory-bar__title';
+        this.title.textContent = "Hazel's Suitcase";
+
         this.itemsRoot = document.createElement('div');
         this.itemsRoot.className = 'inventory-bar__items';
+        this.itemsRoot.setAttribute('data-testid', 'inventory-grid');
 
         this.status = document.createElement('p');
         this.status.className = 'inventory-bar__status';
 
-        this.root.append(this.itemsRoot, this.status);
+        this.root.append(this.title, this.itemsRoot, this.status);
         parent.append(this.root);
     }
 
@@ -50,16 +59,28 @@ export class InventoryBar {
     private render() {
         this.itemsRoot.replaceChildren();
 
-        if (this.view.items.length === 0) {
-            this.status.textContent = 'Inventory is empty.';
-            return;
-        }
+        const slotCount = Math.max(
+            MIN_SLOT_COUNT,
+            Math.ceil(Math.max(this.view.items.length, 1) / GRID_COLUMNS) * GRID_COLUMNS
+        );
 
-        this.view.items.forEach((item) => {
-            const button = document.createElement('button');
+        for (let slotIndex = 0; slotIndex < slotCount; slotIndex += 1) {
+            const item = this.view.items[slotIndex];
+            const slot = document.createElement(item ? 'button' : 'div');
+
+            slot.className = 'inventory-bar__slot';
+            slot.setAttribute('data-testid', `inventory-slot-${slotIndex}`);
+
+            if (!item) {
+                slot.classList.add('inventory-bar__slot--empty');
+                this.itemsRoot.append(slot);
+                continue;
+            }
+
+            const button = slot as HTMLButtonElement;
             button.type = 'button';
-            button.className = 'inventory-bar__item';
-            button.classList.toggle('inventory-bar__item--selected', item.selected);
+            button.classList.add('inventory-bar__item');
+            button.classList.toggle('inventory-bar__slot--selected', item.selected);
             button.title = item.description;
             button.setAttribute('aria-label', item.displayName);
             button.setAttribute('aria-pressed', item.selected ? 'true' : 'false');
@@ -69,26 +90,58 @@ export class InventoryBar {
 
             const icon = document.createElement('span');
             icon.className = 'inventory-bar__item-icon';
-            icon.textContent = this.getIconLabel(item.displayName);
+            this.renderItemIcon(icon, item.displayName, item.iconKey);
 
             const label = document.createElement('span');
             label.className = 'inventory-bar__item-label';
-            label.textContent = item.quantity > 1 ? `${item.displayName} x${item.quantity}` : item.displayName;
+            label.textContent = item.displayName;
 
             button.append(icon, label);
+
+            if (item.quantity > 1) {
+                const quantity = document.createElement('span');
+                quantity.className = 'inventory-bar__quantity';
+                quantity.textContent = String(item.quantity);
+                button.append(quantity);
+            }
+
             this.itemsRoot.append(button);
-        });
+        }
 
         const selectedItem = this.view.items.find((item) => item.selected);
         this.status.textContent = selectedItem
             ? `Selected: ${selectedItem.displayName}`
-            : 'Select an item, then use it on a hotspot.';
+            : this.view.items.length > 0
+                ? 'No item selected.'
+                : 'Suitcase is empty.';
+    }
+
+    private renderItemIcon(icon: HTMLElement, displayName: string, iconKey: string) {
+        const image = document.createElement('img');
+
+        image.className = 'inventory-bar__item-image';
+        image.src = `assets/items/${iconKey}.png`;
+        image.alt = '';
+        image.draggable = false;
+        image.addEventListener('error', () => {
+            image.remove();
+            icon.textContent = this.getIconLabel(displayName);
+        }, { once: true });
+
+        icon.append(image);
     }
 
     private getIconLabel(displayName: string) {
-        return displayName
+        const trimmed = (displayName || '').trim();
+
+        if (!trimmed) {
+            return '';
+        }
+
+        return trimmed
             .split(' ')
-            .map((word) => word[0])
+            .filter(Boolean)
+            .map((word) => word.charAt(0))
             .join('')
             .slice(0, 2)
             .toUpperCase();

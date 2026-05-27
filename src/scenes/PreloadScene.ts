@@ -19,6 +19,7 @@ export class PreloadScene extends Scene {
         this.load.image('alley', 'assets/backgrounds/alley.png');
         this.load.image('cafe-owner', 'assets/characters/npcs/cafe_owner.png');
         this.load.image('overly-rational-pigeon', 'assets/characters/npcs/overly_rational_pigeon.png');
+        this.load.image('cold-coffee', 'assets/items/cold-coffee.png');
         this.load.image('invalid-alibi', 'assets/items/invalid_alibi.png');
         this.load.spritesheet(HAZEL_TEXTURE_KEY, 'assets/characters/hazel-4dir.png', {
             frameWidth: HAZEL_FRAME_WIDTH,

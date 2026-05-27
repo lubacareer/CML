@@ -383,7 +383,14 @@ test('picks up cold coffee and uses it from the inventory', async ({ page }) => 
 
     const inventoryBar = page.getByTestId('inventory-bar');
     await expect(inventoryBar).toBeVisible();
-    await expect(inventoryBar).toContainText('Cold Coffee');
+    await expect(inventoryBar).toContainText("Hazel's Suitcase");
+    await expect(page.getByTestId('inventory-grid')).toBeVisible();
+    await expect(page.getByTestId('inventory-item-cold_coffee')).toBeVisible();
+    await expect(page.getByTestId('inventory-slot-1')).toBeVisible();
+    await expect(page.getByTestId('inventory-item-cold_coffee').locator('img')).toHaveAttribute(
+        'src',
+        /assets\/items\/cold-coffee\.png/
+    );
 
     await page.getByTestId('inventory-item-cold_coffee').click();
 
@@ -427,4 +434,80 @@ test('map routes unlocked locations and explains locked destinations', async ({ 
     await expect(dialogueBox).toBeVisible();
     await expect(dialogueBox).toContainText('The alley refuses to be investigated before it has a proper clue.');
     await waitForScene(page, 'map');
+});
+
+test('completes the first puzzle chain and unlocks the alley', async ({ page }) => {
+    await page.goto('/');
+    await waitForScene(page, 'office');
+    await answerPhoneAndUnlockMap(page);
+
+    await page.getByTestId('action-exit').click();
+    await waitForScene(page, 'street');
+
+    await page.mouse.click(340, 600);
+    const dialogueBox = page.getByTestId('dialogue-box');
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('The footprints head in three directions at once.');
+    await waitForFlag(page, 'footprints_inspected');
+
+    await page.keyboard.press('Escape');
+    await expect(dialogueBox).toBeHidden();
+
+    await page.mouse.click(120, 280);
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('The cafe smells like coffee and possible testimony.');
+    await waitForFlag(page, 'cafe_visited');
+
+    await page.keyboard.press('Escape');
+    await expect(dialogueBox).toBeHidden();
+
+    await page.getByTestId('action-exit').click();
+    await waitForScene(page, 'office');
+
+    await page.getByTestId('action-use').click();
+    await page.mouse.click(1150, 560);
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('You acquired Cold Coffee. It has seen things.');
+    await waitForInventoryItem(page, 'cold_coffee');
+
+    await page.keyboard.press('Escape');
+    await expect(dialogueBox).toBeHidden();
+
+    await page.getByTestId('action-exit').click();
+    await waitForScene(page, 'street');
+
+    await page.keyboard.press('I');
+    await expect(page.getByTestId('inventory-bar')).toBeVisible();
+    await page.getByTestId('inventory-item-cold_coffee').click();
+    await expect(page.getByTestId('inventory-item-cold_coffee')).toHaveAttribute('aria-pressed', 'true');
+
+    await page.mouse.click(560, 560);
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('The pigeon accepts the Cold Coffee');
+    await waitForFlag(page, 'invalid_alibi_found');
+    await waitForInventoryItem(page, 'invalid_alibi');
+
+    await page.keyboard.press('Escape');
+    await expect(dialogueBox).toBeHidden();
+
+    await page.getByTestId('inventory-item-invalid_alibi').click();
+    await expect(page.getByTestId('inventory-item-invalid_alibi')).toHaveAttribute('aria-pressed', 'true');
+
+    await page.keyboard.press('M');
+    await waitForScene(page, 'map');
+
+    await page.mouse.click(1000, 225);
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('Hazel files the Invalid Alibi at the police kiosk.');
+    await waitForFlag(page, 'invalid_alibi_delivered');
+    await waitForFlag(page, 'alley_unlocked');
+
+    await page.keyboard.press('Escape');
+    await waitForScene(page, 'map');
+
+    await page.mouse.click(560, 560);
+    await waitForScene(page, 'asset-preview');
+    await expect.poll(
+        async () => page.evaluate(() => (window as any).__CML_DEBUG__?.previewId)
+    ).toBe('alley');
 });

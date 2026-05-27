@@ -77,8 +77,11 @@
       "defaultVerb": "look",
       "interactions": {
         "look": {
-          "type": "text",
-          "text": "The cafe smells like coffee and possible testimony. The door will open in a later sprint."
+          "type": "effects",
+          "effects": [
+            { "type": "setFlag", "flag": "cafe_visited" }
+          ],
+          "text": "The cafe smells like coffee and possible testimony. Hazel makes a note to question anything with a saucer."
         }
       }
     },
@@ -92,8 +95,50 @@
       "defaultVerb": "look",
       "interactions": {
         "look": {
-          "type": "text",
+          "type": "effects",
+          "effects": [
+            { "type": "setFlag", "flag": "footprints_inspected" }
+          ],
           "text": "The footprints head in three directions at once. Either logic is missing, or someone owns very ambitious shoes."
+        }
+      }
+    },
+    {
+      "id": "overly_rational_pigeon",
+      "name": "Overly Rational Pigeon",
+      "x": 500,
+      "y": 505,
+      "width": 120,
+      "height": 125,
+      "defaultVerb": "talk",
+      "requiredFlags": ["case001_started", "footprints_inspected", "cafe_visited"],
+      "hiddenWhenFlag": "invalid_alibi_found",
+      "sprite": {
+        "key": "overly-rational-pigeon",
+        "x": 560,
+        "y": 620,
+        "width": 92,
+        "height": 94,
+        "depth": 4
+      },
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "The pigeon is standing exactly where the footprints become argumentative."
+        },
+        "talk": {
+          "type": "text",
+          "text": "The pigeon refuses to speculate without a beverage and three notarized crumbs."
+        }
+      },
+      "itemInteractions": {
+        "cold_coffee": {
+          "type": "effects",
+          "effects": [
+            { "type": "setFlag", "flag": "invalid_alibi_found" },
+            { "type": "addItem", "itemId": "invalid_alibi" }
+          ],
+          "text": "The pigeon accepts the Cold Coffee, performs a rigorous beak audit, and drops an Invalid Alibi."
         }
       }
     },

@@ -6,7 +6,7 @@ import { HAZEL_DISPLAY_SCALE, HAZEL_TEXTURE_KEY } from '../game/hazelAnimationCo
 import type { DialogueView, GameSceneData, HotspotData, InteractionVerb, SceneExitData, SceneId } from '../game/types';
 import { DialogueSystem } from '../systems/DialogueSystem';
 import { gameState } from '../systems/GameState';
-import { findHotspotAtPoint } from '../systems/HotspotSystem';
+import { findHotspotAtPoint, getVisibleHotspots } from '../systems/HotspotSystem';
 import { InventorySystem } from '../systems/InventorySystem';
 import { resolveCustomInteraction } from '../systems/InteractionSystem';
 import { findNavigationPath } from '../systems/NavigationSystem';
@@ -36,6 +36,7 @@ export class StreetScene extends Scene {
     private inventoryBar?: InventoryBar;
     private debugPanel?: DebugPanel;
     private hoverLabel?: GameObjects.Text;
+    private hotspotSprites = new Map<string, GameObjects.Image>();
 
     constructor() {
         super('StreetScene');
@@ -48,6 +49,7 @@ export class StreetScene extends Scene {
         this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, this.sceneData.backgroundKey)
             .setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
 
+        this.createHotspotSprites();
         registerHazelAnimations(this);
         this.createHazelSprite();
         this.createDomOverlays();
@@ -125,6 +127,39 @@ export class StreetScene extends Scene {
                 y: 4
             }
         }).setDepth(30).setVisible(false);
+    }
+
+    private createHotspotSprites() {
+        this.sceneData.hotspots.forEach((hotspot) => {
+            if (!hotspot.sprite) {
+                return;
+            }
+
+            const sprite = this.add.image(hotspot.sprite.x, hotspot.sprite.y, hotspot.sprite.key)
+                .setOrigin(0.5, 1)
+                .setDepth(hotspot.sprite.depth ?? 4);
+
+            if (hotspot.sprite.width && hotspot.sprite.height) {
+                sprite.setDisplaySize(hotspot.sprite.width, hotspot.sprite.height);
+            } else if (hotspot.sprite.scale) {
+                sprite.setScale(hotspot.sprite.scale);
+            }
+
+            this.hotspotSprites.set(hotspot.id, sprite);
+        });
+
+        this.syncHotspotSprites();
+    }
+
+    private syncHotspotSprites() {
+        const visibleHotspotIds = new Set(
+            getVisibleHotspots(this.sceneData.hotspots, gameState.getFlags())
+                .map((hotspot) => hotspot.id)
+        );
+
+        this.hotspotSprites.forEach((sprite, hotspotId) => {
+            sprite.setVisible(visibleHotspotIds.has(hotspotId));
+        });
     }
 
     private handlePointerDown(pointer: Input.Pointer) {
@@ -388,6 +423,7 @@ export class StreetScene extends Scene {
             this.dialogueBox?.close();
             this.actionToolbar?.setMuted(false);
             this.refreshInventoryBar();
+            this.syncHotspotSprites();
             this.debugPanel?.update(gameState.getSnapshot());
             this.publishDebugState();
             return;
@@ -396,6 +432,7 @@ export class StreetScene extends Scene {
         this.dialogueBox?.show(view);
         this.actionToolbar?.setMuted(true);
         this.refreshInventoryBar();
+        this.syncHotspotSprites();
         this.debugPanel?.update(gameState.getSnapshot());
         this.publishDebugState();
     }
