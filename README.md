@@ -9,6 +9,17 @@ npm install
 npm run dev
 ```
 
+## Commands
+
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run typecheck
+npm test
+npm run test:e2e
+```
+
 ## Tests
 
 ```bash
@@ -23,6 +34,11 @@ Runtime asset copies live here:
 - `public/assets/backgrounds/office.png`
 - `public/assets/backgrounds/street.png`
 - `public/assets/backgrounds/map.png`
+- `public/assets/backgrounds/cafe.png`
+- `public/assets/backgrounds/police-kiosk.png`
+- `public/assets/backgrounds/alley.png`
+- `public/assets/characters/npcs/cafe_owner.png`
+- `public/assets/characters/npcs/overly_rational_pigeon.png`
 - `public/assets/items/cold-coffee.png`
 - `public/assets/items/invalid_alibi.png`
 - `public/assets/characters/hazel_spritesheet.png`
@@ -72,6 +88,22 @@ npm run build:assets
 
 This normalizes the approved `Hazel2.png` character sheet and AI source strips into Phaser-ready runtime assets, including `hazel-normalized.png`, `hazel-4dir.png`, and toolbar icons.
 
+## Static deployment
+
+```bash
+npm run build
+npm run preview
+```
+
+The production build writes static files to `dist/`. Deploy that folder to static hosting with history fallback disabled; the game uses a single `index.html` and relative asset URLs.
+
+## Known limitations
+
+- The alley is still an unlocked preview scene, not a full investigation location.
+- Oddities museum, boarding house, and docks remain locked placeholder map destinations.
+- Audio cues are generated placeholder WebAudio tones.
+- Saves are single-slot local browser saves under `localStorage`, not cloud or multi-profile saves.
+
 ## Development style
 
-This project follows short agile sprints. Sprint 0 established the Phaser/Vite/TypeScript shell, tests, docs, and asset layout. Sprint 1 added the first playable office scene. Sprint 2 replaced the temporary marker with Hazel sprite animation. Sprint 3 added branching phone dialogue and case-start map unlocking. Sprint 4 reconciled street scene content and transition coverage. Sprint 5 added inventory pickup, item selection, and item-on-hotspot responses. Sprint 6 made the illustrated map a gated navigation screen. Sprint 7 added the first playable puzzle chain from phone call to alley unlock. Sprint 8 added title-screen start/continue, explicit local saves, skippable typewriter dialogue, scene fades, hover/debug polish, and placeholder audio cues. Sprint 9A turns Daisy's Cafe and the police kiosk into playable story scenes before demo packaging.
+This project follows short agile sprints. Sprint 0 established the Phaser/Vite/TypeScript shell, tests, docs, and asset layout. Sprint 1 added the first playable office scene. Sprint 2 replaced the temporary marker with Hazel sprite animation. Sprint 3 added branching phone dialogue and case-start map unlocking. Sprint 4 reconciled street scene content and transition coverage. Sprint 5 added inventory pickup, item selection, and item-on-hotspot responses. Sprint 6 made the illustrated map a gated navigation screen. Sprint 7 added the first playable puzzle chain from phone call to alley unlock. Sprint 8 added title-screen start/continue, explicit local saves, skippable typewriter dialogue, scene fades, hover/debug polish, and placeholder audio cues. Sprint 9A turns Daisy's Cafe and the police kiosk into playable story scenes before demo packaging. Sprint 9 packages the demo for static hosting with shareable docs.

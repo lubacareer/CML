@@ -8,6 +8,7 @@
     "build:assets": "node scripts/build-hazel-spritesheet.mjs && node scripts/build-hazel-4dir-spritesheet.mjs && node scripts/build-ui-icons.mjs",
     "dev": "vite --config vite/config.dev.mjs",
     "build": "vite build --config vite/config.prod.mjs",
+    "preview": "vite preview --config vite/config.prod.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

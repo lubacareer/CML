@@ -86,3 +86,9 @@
 - Use a shared simple story-location scene shell for cafe and kiosk so the new scenes reuse toolbar, inventory, save, map, fades, movement, and data-driven hotspots without refactoring office or street.
 - Keep the office coffee pickup as an optional shortcut, while making Daisy's Cafe the plan-aligned Cold Coffee source.
 - Split the police kiosk step into filing `invalid_alibi` on the map, then completing kiosk paperwork after Daisy's testimony to unlock the alley.
+
+## Sprint 9
+
+- Treat packaging as a documentation and validation sprint; do not generate new art unless a deployment-blocking asset gap appears.
+- Use Vite's production build plus `vite preview` as the static-hosting readiness check.
+- Document the current playable slice, known limitations, and next candidate sprint so the demo can be shared without extra explanation.
