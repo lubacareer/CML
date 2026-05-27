@@ -429,8 +429,10 @@ test('saves from the toolbar and continues from the title screen', async ({ page
     await startNewGame(page);
     await answerPhoneAndUnlockMap(page);
 
-    await page.getByTestId('action-exit').click();
-    await waitForScene(page, 'street');
+    await page.keyboard.press('M');
+    await waitForScene(page, 'map');
+    await page.mouse.click(660, 210);
+    await waitForScene(page, 'cafe');
     await expect(page.getByTestId('action-save')).toBeVisible();
 
     await page.getByTestId('action-save').click();
@@ -440,14 +442,14 @@ test('saves from the toolbar and continues from the title screen', async ({ page
     await expect(dialogueBox).toContainText('Progress saved.');
     await expect.poll(
         async () => page.evaluate(() => JSON.parse(localStorage.getItem('cml.save.v1') ?? 'null')?.snapshot?.currentScene)
-    ).toBe('street');
+    ).toBe('cafe');
 
     await page.reload();
     await waitForScene(page, 'title');
     await expect(page.getByTestId('title-continue')).toBeEnabled();
 
     await page.getByTestId('title-continue').click();
-    await waitForScene(page, 'street');
+    await waitForScene(page, 'cafe');
     await expect.poll(
         async () => page.evaluate(() => (window as any).__CML_DEBUG__?.state?.flags?.case001_started)
     ).toBe(true);
@@ -470,7 +472,7 @@ test('picks up cold coffee and uses it from the inventory', async ({ page }) => 
     await page.keyboard.press('Escape');
     await expect(dialogueBox).toBeHidden();
 
-    await page.keyboard.press('I');
+    await page.getByTestId('action-inventory').click();
 
     const inventoryBar = page.getByTestId('inventory-bar');
     await expect(inventoryBar).toBeVisible();
@@ -486,7 +488,7 @@ test('picks up cold coffee and uses it from the inventory', async ({ page }) => 
     await page.getByTestId('inventory-close').click();
     await expect(inventoryBar).toBeHidden();
 
-    await page.keyboard.press('I');
+    await page.getByTestId('action-inventory').click();
     await expect(inventoryBar).toBeVisible();
 
     await page.getByTestId('inventory-item-cold_coffee').click();
@@ -512,7 +514,7 @@ test('map routes unlocked locations and explains locked destinations', async ({ 
     await waitForScene(page, 'map');
 
     await page.mouse.click(660, 210);
-    await waitForScene(page, 'street');
+    await waitForScene(page, 'cafe');
 
     await page.keyboard.press('M');
     await waitForScene(page, 'map');
@@ -536,11 +538,33 @@ test('completes the first puzzle chain and unlocks the alley', async ({ page }) 
     await startNewGame(page);
     await answerPhoneAndUnlockMap(page);
 
+    await page.keyboard.press('M');
+    await waitForScene(page, 'map');
+    await page.mouse.click(660, 210);
+    await waitForScene(page, 'cafe');
+
+    const dialogueBox = page.getByTestId('dialogue-box');
+    await page.getByTestId('action-talk').click();
+    await page.mouse.click(1030, 500);
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('Daisy confirms the missing argument came through here');
+    await waitForFlag(page, 'daisy_testimony_recorded');
+    await page.keyboard.press('Escape');
+    await expect(dialogueBox).toBeHidden();
+
+    await page.getByTestId('action-use').click();
+    await page.mouse.click(320, 480);
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText("You acquired Cold Coffee from Daisy's counter.");
+    await waitForInventoryItem(page, 'cold_coffee');
+    await page.keyboard.press('Escape');
+    await expect(dialogueBox).toBeHidden();
+
     await page.getByTestId('action-exit').click();
     await waitForScene(page, 'street');
 
+    await page.getByTestId('action-look').click();
     await page.mouse.click(340, 600);
-    const dialogueBox = page.getByTestId('dialogue-box');
     await expect(dialogueBox).toBeVisible();
     await expect(dialogueBox).toContainText('The footprints head in three directions at once.');
     await waitForFlag(page, 'footprints_inspected');
@@ -548,30 +572,7 @@ test('completes the first puzzle chain and unlocks the alley', async ({ page }) 
     await page.keyboard.press('Escape');
     await expect(dialogueBox).toBeHidden();
 
-    await page.mouse.click(120, 280);
-    await expect(dialogueBox).toBeVisible();
-    await expect(dialogueBox).toContainText('The cafe smells like coffee and possible testimony.');
-    await waitForFlag(page, 'cafe_visited');
-
-    await page.keyboard.press('Escape');
-    await expect(dialogueBox).toBeHidden();
-
-    await page.getByTestId('action-exit').click();
-    await waitForScene(page, 'office');
-
-    await page.getByTestId('action-use').click();
-    await page.mouse.click(1150, 560);
-    await expect(dialogueBox).toBeVisible();
-    await expect(dialogueBox).toContainText('You acquired Cold Coffee. It has seen things.');
-    await waitForInventoryItem(page, 'cold_coffee');
-
-    await page.keyboard.press('Escape');
-    await expect(dialogueBox).toBeHidden();
-
-    await page.getByTestId('action-exit').click();
-    await waitForScene(page, 'street');
-
-    await page.keyboard.press('I');
+    await page.getByTestId('action-inventory').click();
     await expect(page.getByTestId('inventory-bar')).toBeVisible();
     await page.getByTestId('inventory-item-cold_coffee').click();
     await expect(page.getByTestId('inventory-item-cold_coffee')).toHaveAttribute('aria-pressed', 'true');
@@ -595,9 +596,22 @@ test('completes the first puzzle chain and unlocks the alley', async ({ page }) 
     await expect(dialogueBox).toBeVisible();
     await expect(dialogueBox).toContainText('Hazel files the Invalid Alibi at the police kiosk.');
     await waitForFlag(page, 'invalid_alibi_delivered');
+
+    await page.keyboard.press('Escape');
+    await waitForScene(page, 'map');
+
+    await page.mouse.click(1000, 225);
+    await waitForScene(page, 'police-kiosk');
+
+    await page.getByTestId('action-use').click();
+    await page.mouse.click(820, 520);
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText("Hazel attaches Daisy's testimony to the Invalid Alibi.");
     await waitForFlag(page, 'alley_unlocked');
 
     await page.keyboard.press('Escape');
+    await expect(dialogueBox).toBeHidden();
+    await page.keyboard.press('M');
     await waitForScene(page, 'map');
 
     await page.mouse.click(560, 560);

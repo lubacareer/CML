@@ -3,14 +3,13 @@ import type { GameObjects, Input } from 'phaser';
 import { getHazelAnimationKey, registerHazelAnimations } from '../game/characterAnimations';
 import { DEBUG_HOTSPOTS, GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
 import { HAZEL_DISPLAY_SCALE, HAZEL_TEXTURE_KEY } from '../game/hazelAnimationConfig';
-import type { DialogueView, GameSceneData, HotspotData, InteractionVerb, SceneExitData } from '../game/types';
+import type { DialogueView, GameSceneData, HotspotData, InteractionVerb, SceneExitData, SceneId } from '../game/types';
 import { playAudioCue } from '../systems/AudioCueSystem';
 import { DialogueSystem } from '../systems/DialogueSystem';
 import { toggleGameFullscreen } from '../systems/FullscreenSystem';
 import { gameState } from '../systems/GameState';
 import { findHotspotAtPoint, getVisibleHotspots } from '../systems/HotspotSystem';
 import { InventorySystem } from '../systems/InventorySystem';
-import { resolveCustomInteraction } from '../systems/InteractionSystem';
 import { findNavigationPath } from '../systems/NavigationSystem';
 import { PlayerController2D } from '../systems/PlayerController2D';
 import type { PlayerControllerSnapshot } from '../systems/PlayerController2D';
@@ -29,7 +28,7 @@ const HAZEL_MIN_X = 40;
 const HAZEL_MAX_X = GAME_WIDTH - 40;
 const HAZEL_WALK_SPEED_PIXELS_PER_SECOND = 520;
 
-export class StreetScene extends Scene {
+export class StoryLocationScene extends Scene {
     private sceneData!: GameSceneData;
     private hazel!: GameObjects.Sprite;
     private playerController!: PlayerController2D;
@@ -45,13 +44,13 @@ export class StreetScene extends Scene {
     private hoverHighlightGraphics?: GameObjects.Graphics;
     private hotspotSprites = new Map<string, GameObjects.Image>();
 
-    constructor() {
-        super('StreetScene');
+    constructor(sceneKey: string, private readonly sceneId: SceneId) {
+        super(sceneKey);
     }
 
     create() {
-        this.sceneData = loadSceneData('street');
-        gameState.setCurrentScene('street');
+        this.sceneData = loadSceneData(this.sceneId);
+        gameState.setCurrentScene(this.sceneId);
 
         this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, this.sceneData.backgroundKey)
             .setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
@@ -242,7 +241,7 @@ export class StreetScene extends Scene {
         if (sceneExit) {
             this.game.canvas.style.cursor = 'pointer';
             this.showHoverHighlight(sceneExit);
-            this.positionHoverLabel(pointer, 'Go to office');
+            this.positionHoverLabel(pointer, `Go to ${sceneExit.targetScene}`);
             return;
         }
 
@@ -285,10 +284,8 @@ export class StreetScene extends Scene {
 
     private performHotspotInteraction(hotspot: HotspotData, verb = hotspot.defaultVerb) {
         this.hideHoverLabel();
-        const result = resolveCustomInteraction(this.getInteractionResult(hotspot, verb));
-
         this.renderDialogueView(
-            this.dialogueSystem.resolveInteractionResult(result, hotspot.name)
+            this.dialogueSystem.resolveInteractionResult(this.getInteractionResult(hotspot, verb), hotspot.name)
         );
     }
 
@@ -469,7 +466,7 @@ export class StreetScene extends Scene {
         };
 
         debugWindow.__CML_DEBUG__ = {
-            scene: 'street',
+            scene: this.sceneId,
             hazel: this.playerController.getSnapshot(),
             state: gameState.getSnapshot()
         };

@@ -14,13 +14,13 @@ export const mapLocations: MapLocationData[] = [
     },
     {
         id: 'cozy_cafe',
-        name: "Daisy's Cafe / Street",
+        name: "Daisy's Cafe",
         x: 555,
         y: 90,
         width: 280,
         height: 220,
         initiallyUnlocked: true,
-        targetScene: 'street',
+        targetScene: 'cafe',
         lockedText: 'The cafe exterior is available from the street, but the inside still has union rules.'
     },
     {
@@ -31,16 +31,15 @@ export const mapLocations: MapLocationData[] = [
         width: 235,
         height: 240,
         requiredFlag: 'police_kiosk_unlocked',
-        previewId: 'police-kiosk',
+        targetScene: 'police-kiosk',
         itemInteractions: {
             invalid_alibi: {
                 type: 'effects',
                 effects: [
                     { type: 'setFlag', flag: 'police_kiosk_unlocked' },
-                    { type: 'setFlag', flag: 'invalid_alibi_delivered' },
-                    { type: 'setFlag', flag: 'alley_unlocked' }
+                    { type: 'setFlag', flag: 'invalid_alibi_delivered' }
                 ],
-                text: 'Hazel files the Invalid Alibi at the police kiosk. The paperwork panics, approves itself, and unlocks the narrow alley.'
+                text: 'Hazel files the Invalid Alibi at the police kiosk. The paperwork wakes up, accepts the form, and demands Daisy\'s witness statement.'
             }
         },
         lockedText: 'The police kiosk is locked behind paperwork. Terrifying paperwork.'

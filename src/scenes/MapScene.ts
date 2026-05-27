@@ -2,12 +2,13 @@ import { Scene } from 'phaser';
 import type { GameObjects, Input } from 'phaser';
 import { mapLocations } from '../data/mapLocations';
 import { DEBUG_HOTSPOTS, GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
-import type { DialogueView, SceneId } from '../game/types';
+import type { DialogueView } from '../game/types';
 import { playAudioCue } from '../systems/AudioCueSystem';
 import { DialogueSystem } from '../systems/DialogueSystem';
 import { gameState } from '../systems/GameState';
 import { findMapLocationAtPoint, resolveMapLocation } from '../systems/MapNavigationSystem';
 import { SaveGameSystem } from '../systems/SaveGameSystem';
+import { getSceneKeyForSceneId } from '../systems/SceneKeySystem';
 import { fadeInScene, transitionToScene } from '../systems/SceneTransitionSystem';
 import { DebugPanel } from '../ui/DebugPanel';
 import { DialogueBox } from '../ui/DialogueBox';
@@ -97,7 +98,7 @@ export class MapScene extends Scene {
         );
 
         if (result.type === 'changeScene') {
-            transitionToScene(this, this.getSceneKey(result.sceneId));
+            transitionToScene(this, getSceneKeyForSceneId(result.sceneId));
             return;
         }
 
@@ -206,18 +207,6 @@ export class MapScene extends Scene {
         this.dialogueBox?.show(view);
         this.debugPanel?.update(gameState.getSnapshot());
         this.publishDebugState();
-    }
-
-    private getSceneKey(sceneId: SceneId) {
-        if (sceneId === 'street') {
-            return 'StreetScene';
-        }
-
-        if (sceneId === 'map') {
-            return 'MapScene';
-        }
-
-        return 'OfficeScene';
     }
 
     private saveGame() {

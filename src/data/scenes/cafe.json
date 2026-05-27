@@ -1,0 +1,112 @@
+{
+  "id": "cafe",
+  "backgroundKey": "cafe",
+  "playerStart": { "x": 610, "y": 650 },
+  "walkBaselineY": 650,
+  "navigation": {
+    "walkableAreas": [
+      {
+        "id": "cafe_floor",
+        "points": [
+          { "x": 80, "y": 505 },
+          { "x": 1225, "y": 510 },
+          { "x": 1280, "y": 705 },
+          { "x": 0, "y": 705 }
+        ]
+      }
+    ],
+    "blockers": [
+      {
+        "id": "counter",
+        "points": [
+          { "x": 120, "y": 360 },
+          { "x": 550, "y": 355 },
+          { "x": 575, "y": 610 },
+          { "x": 100, "y": 610 }
+        ]
+      }
+    ],
+    "nodes": [
+      { "id": "left_floor", "x": 200, "y": 670, "links": ["center_floor"] },
+      { "id": "center_floor", "x": 620, "y": 670, "links": ["left_floor", "right_floor"] },
+      { "id": "right_floor", "x": 1020, "y": 670, "links": ["center_floor"] }
+    ]
+  },
+  "exits": [
+    {
+      "id": "cafe_door",
+      "targetScene": "street",
+      "x": 0,
+      "y": 180,
+      "width": 170,
+      "height": 430
+    }
+  ],
+  "hotspots": [
+    {
+      "id": "daisy",
+      "name": "Daisy",
+      "x": 890,
+      "y": 320,
+      "width": 290,
+      "height": 340,
+      "defaultVerb": "talk",
+      "sprite": {
+        "key": "cafe-owner",
+        "x": 1045,
+        "y": 705,
+        "scale": 0.24,
+        "depth": 4
+      },
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "Daisy looks like she has served coffee to every suspect and judged the foam art accordingly."
+        },
+        "talk": {
+          "type": "effects",
+          "effects": [
+            { "type": "setFlag", "flag": "cafe_visited" },
+            { "type": "setFlag", "flag": "daisy_testimony_recorded" }
+          ],
+          "text": "Daisy confirms the missing argument came through here, ordered nothing, and left behind a receipt that says 'ask the paperwork'."
+        }
+      }
+    },
+    {
+      "id": "coffee_counter",
+      "name": "Coffee counter",
+      "x": 145,
+      "y": 395,
+      "width": 410,
+      "height": 180,
+      "defaultVerb": "look",
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "The cafe counter contains several coffees, each colder than the last witness statement."
+        },
+        "pickup": {
+          "type": "addItem",
+          "itemId": "cold_coffee",
+          "text": "You acquired Cold Coffee from Daisy's counter. It has seen things and several spoons."
+        }
+      }
+    },
+    {
+      "id": "receipt_spike",
+      "name": "Receipt spike",
+      "x": 565,
+      "y": 330,
+      "width": 120,
+      "height": 185,
+      "defaultVerb": "look",
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "A stack of receipts. Most are alibis with prices, which is somehow worse."
+        }
+      }
+    }
+  ]
+}

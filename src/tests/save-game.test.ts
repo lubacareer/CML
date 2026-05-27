@@ -77,4 +77,24 @@ describe('SaveGameSystem', () => {
 
         expect(saveGame.load()).toBeUndefined();
     });
+
+    it('restores cafe and police kiosk scene snapshots', () => {
+        const storage = new MemoryStorage();
+        const saveGame = new SaveGameSystem(storage);
+
+        const cafeSnapshot = {
+            ...snapshot,
+            currentScene: 'cafe'
+        } as unknown as GameStateSnapshot;
+        const kioskSnapshot = {
+            ...snapshot,
+            currentScene: 'police-kiosk'
+        } as unknown as GameStateSnapshot;
+
+        saveGame.save(cafeSnapshot);
+        expect(saveGame.load()).toEqual(cafeSnapshot);
+
+        saveGame.save(kioskSnapshot);
+        expect(saveGame.load()).toEqual(kioskSnapshot);
+    });
 });

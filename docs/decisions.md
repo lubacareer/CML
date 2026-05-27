@@ -78,3 +78,11 @@
 - Keep scene fades, audio cues, and save persistence in small helper systems while Phaser scenes only route input and render feedback.
 - Use a skippable dialogue typewriter effect that respects reduced-motion preferences and does not expose choices before the active line finishes.
 - Keep hover labels as the standard player-facing affordance, with subtle debug-only hotspot/location highlights for development.
+
+## Sprint 9A
+
+- Insert a story-scene expansion before demo packaging because the generated cafe and police kiosk assets are now ready for real gameplay.
+- Add `cafe` and `police-kiosk` as real scene IDs and resumable save destinations; keep the alley as a preview until the next story increment.
+- Use a shared simple story-location scene shell for cafe and kiosk so the new scenes reuse toolbar, inventory, save, map, fades, movement, and data-driven hotspots without refactoring office or street.
+- Keep the office coffee pickup as an optional shortcut, while making Daisy's Cafe the plan-aligned Cold Coffee source.
+- Split the police kiosk step into filing `invalid_alibi` on the map, then completing kiosk paperwork after Daisy's testimony to unlock the alley.

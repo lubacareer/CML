@@ -1,4 +1,4 @@
-export type SceneId = 'office' | 'street' | 'map';
+export type SceneId = 'office' | 'street' | 'map' | 'cafe' | 'police-kiosk';
 export type AssetPreviewId = 'cafe' | 'police-kiosk' | 'alley';
 
 export interface Point2D {

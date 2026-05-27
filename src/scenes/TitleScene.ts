@@ -1,9 +1,9 @@
 import { Scene } from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
-import type { SceneId } from '../game/types';
 import { playAudioCue } from '../systems/AudioCueSystem';
 import { gameState } from '../systems/GameState';
 import { SaveGameSystem } from '../systems/SaveGameSystem';
+import { getSceneKeyForSceneId } from '../systems/SceneKeySystem';
 import { fadeInScene, transitionToScene } from '../systems/SceneTransitionSystem';
 
 export class TitleScene extends Scene {
@@ -78,25 +78,13 @@ export class TitleScene extends Scene {
         }
 
         gameState.restore(snapshot);
-        transitionToScene(this, this.getSceneKey(snapshot.currentScene));
+        transitionToScene(this, getSceneKeyForSceneId(snapshot.currentScene));
     };
 
     private refreshContinueState(enabled: boolean) {
         this.root
             ?.querySelector<HTMLButtonElement>('[data-testid="title-continue"]')
             ?.toggleAttribute('disabled', !enabled);
-    }
-
-    private getSceneKey(sceneId: SceneId) {
-        if (sceneId === 'street') {
-            return 'StreetScene';
-        }
-
-        if (sceneId === 'map') {
-            return 'MapScene';
-        }
-
-        return 'OfficeScene';
     }
 
     private publishDebugState() {

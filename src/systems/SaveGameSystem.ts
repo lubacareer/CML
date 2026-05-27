@@ -2,7 +2,7 @@ import type { GameStateSnapshot, SceneId } from '../game/types';
 
 export const SAVE_GAME_STORAGE_KEY = 'cml.save.v1';
 const SAVE_GAME_VERSION = 1;
-const resumableScenes = new Set<SceneId>(['office', 'street', 'map']);
+const resumableScenes = new Set<SceneId>(['office', 'street', 'map', 'cafe', 'police-kiosk']);
 
 export interface SaveGameRecord {
     version: 1;

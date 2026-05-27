@@ -3,7 +3,7 @@ import type { GameObjects, Input } from 'phaser';
 import { getHazelAnimationKey, registerHazelAnimations } from '../game/characterAnimations';
 import { DEBUG_HOTSPOTS, GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
 import { HAZEL_TEXTURE_KEY } from '../game/hazelAnimationConfig';
-import type { DialogueView, GameSceneData, HotspotData, InteractionVerb, SceneExitData, SceneId } from '../game/types';
+import type { DialogueView, GameSceneData, HotspotData, InteractionVerb, SceneExitData } from '../game/types';
 import { playAudioCue } from '../systems/AudioCueSystem';
 import { DialogueSystem } from '../systems/DialogueSystem';
 import { toggleGameFullscreen } from '../systems/FullscreenSystem';
@@ -17,6 +17,7 @@ import type { PlayerControllerSnapshot } from '../systems/PlayerController2D';
 import { SaveGameSystem } from '../systems/SaveGameSystem';
 import { findExitAtPoint, getAvailableExits } from '../systems/SceneExitSystem';
 import { loadSceneData } from '../systems/SceneDataLoader';
+import { getSceneKeyForSceneId } from '../systems/SceneKeySystem';
 import { fadeInScene, transitionToScene } from '../systems/SceneTransitionSystem';
 import { ActionToolbar, isInteractionVerbAction } from '../ui/ActionToolbar';
 import type { ToolbarAction } from '../ui/ActionToolbar';
@@ -355,7 +356,7 @@ export class OfficeScene extends Scene {
 
     private transitionToScene(exit: SceneExitData) {
         this.hideHoverLabel();
-        transitionToScene(this, this.getSceneKey(exit.targetScene));
+        transitionToScene(this, getSceneKeyForSceneId(exit.targetScene));
     }
 
     private handleToolbarAction = (action: ToolbarAction) => {
@@ -474,18 +475,6 @@ export class OfficeScene extends Scene {
                 ])
             );
         }
-    }
-
-    private getSceneKey(sceneId: SceneId) {
-        if (sceneId === 'street') {
-            return 'StreetScene';
-        }
-
-        if (sceneId === 'map') {
-            return 'MapScene';
-        }
-
-        return 'OfficeScene';
     }
 
     private publishDebugState() {
