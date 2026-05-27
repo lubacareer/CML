@@ -37,7 +37,7 @@ The original generated PNGs are preserved in the project root. AI-generated sour
 - Toolbar icons: choose walk/look/use/talk, exit, map, inventory, or fullscreen
 - Space or click: advance dialogue
 - Esc: close dialogue/menu
-- H: toggle hotspot debug rectangles in development
+- H: toggle hotspot debug rectangles when `VITE_CML_DEBUG_HOTSPOTS=true`
 - F: toggle fullscreen
 - I: inventory
 - M: open the map after the first case starts

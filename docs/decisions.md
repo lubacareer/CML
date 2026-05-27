@@ -16,7 +16,7 @@
 - Render dialogue and debug status with DOM overlays so text remains readable and Playwright can assert UI state reliably.
 - Keep unsupported verbs and custom actions as visible fallback dialogue instead of silently failing.
 - Use Phaser's canvas renderer for the first 2D slice to avoid unnecessary WebGL context churn in headless tests.
-- Keep hotspot debug rectangles hidden by default in development and expose them with `H`; hover labels identify clickable objects without covering the art.
+- Keep hotspot debug rectangles hidden by default, expose them only when `VITE_CML_DEBUG_HOTSPOTS=true`, and keep hover labels as the normal clickable-object affordance.
 
 ## Sprint 2
 
