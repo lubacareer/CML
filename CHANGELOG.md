@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added Sprint 6 map location data and pure navigation resolution for unlocked routes, future preview routes, and locked responses.
+- Updated map behavior so only the detective agency and street/cafe exterior are initially reachable after the case starts.
+- Added unit and browser coverage for locked and unlocked map destinations.
 - Added Sprint 5 inventory metadata, inventory UI bar, item selection, and selected-item hotspot use.
 - Added Cold Coffee pickup from the office coffee machine and a locked-drawer item-use failure response.
 - Added inventory system unit coverage and browser coverage for pickup, inventory opening, selection, and item use.

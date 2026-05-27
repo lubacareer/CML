@@ -1,4 +1,5 @@
 export type SceneId = 'office' | 'street' | 'map';
+export type AssetPreviewId = 'cafe' | 'police-kiosk' | 'alley';
 
 export interface Point2D {
     x: number;
@@ -89,6 +90,20 @@ export interface InventoryItemView extends InventoryItemData {
 export interface InventoryView {
     items: InventoryItemView[];
     selectedItemId?: string;
+}
+
+export interface MapLocationData {
+    id: string;
+    name: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    initiallyUnlocked?: boolean;
+    requiredFlag?: string;
+    targetScene?: SceneId;
+    previewId?: AssetPreviewId;
+    lockedText: string;
 }
 
 export interface DialogueChoice {

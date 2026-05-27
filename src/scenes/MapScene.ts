@@ -1,92 +1,13 @@
 import { Scene } from 'phaser';
 import type { GameObjects, Input } from 'phaser';
+import { mapLocations } from '../data/mapLocations';
 import { DEBUG_HOTSPOTS, GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
 import type { DialogueView, SceneId } from '../game/types';
-import type { AssetPreviewId } from './AssetPreviewScene';
 import { DialogueSystem } from '../systems/DialogueSystem';
 import { gameState } from '../systems/GameState';
+import { findMapLocationAtPoint, resolveMapLocation } from '../systems/MapNavigationSystem';
 import { DebugPanel } from '../ui/DebugPanel';
 import { DialogueBox } from '../ui/DialogueBox';
-
-interface MapLocation {
-    id: string;
-    name: string;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    targetScene?: SceneId;
-    previewId?: AssetPreviewId;
-    lockedText?: string;
-}
-
-const MAP_LOCATIONS: MapLocation[] = [
-    {
-        id: 'detective_agency',
-        name: 'Detective Agency Office',
-        x: 280,
-        y: 80,
-        width: 250,
-        height: 220,
-        targetScene: 'office'
-    },
-    {
-        id: 'cozy_cafe',
-        name: 'Cozy Cafe / Street',
-        x: 555,
-        y: 90,
-        width: 280,
-        height: 220,
-        previewId: 'cafe'
-    },
-    {
-        id: 'police_kiosk',
-        name: 'Police kiosk',
-        x: 910,
-        y: 105,
-        width: 235,
-        height: 240,
-        previewId: 'police-kiosk',
-        lockedText: 'The police kiosk is locked behind paperwork. Terrifying paperwork.'
-    },
-    {
-        id: 'oddities_museum',
-        name: 'Oddities museum',
-        x: 95,
-        y: 330,
-        width: 285,
-        height: 230,
-        lockedText: 'The museum is closed for an exhibit called Please Stop Touching That.'
-    },
-    {
-        id: 'boarding_house',
-        name: 'Boarding house',
-        x: 715,
-        y: 370,
-        width: 315,
-        height: 245,
-        lockedText: 'The boarding house will matter once the case has more suspects.'
-    },
-    {
-        id: 'narrow_alley',
-        name: 'Narrow alley',
-        x: 455,
-        y: 455,
-        width: 210,
-        height: 220,
-        previewId: 'alley',
-        lockedText: 'The alley refuses to be investigated before it has a proper clue.'
-    },
-    {
-        id: 'docks',
-        name: 'The docks',
-        x: 45,
-        y: 560,
-        width: 310,
-        height: 145,
-        lockedText: 'The docks are full of boats, fish, and future sprint work.'
-    }
-];
 
 export class MapScene extends Scene {
     private dialogueSystem = new DialogueSystem();
@@ -158,14 +79,16 @@ export class MapScene extends Scene {
             return;
         }
 
-        if (location.targetScene) {
-            this.scene.start(this.getSceneKey(location.targetScene));
+        const result = resolveMapLocation(location, gameState.getFlags());
+
+        if (result.type === 'changeScene') {
+            this.scene.start(this.getSceneKey(result.sceneId));
             return;
         }
 
-        if (location.previewId) {
+        if (result.type === 'preview') {
             this.scene.start('AssetPreviewScene', {
-                previewId: location.previewId
+                previewId: result.previewId
             });
             return;
         }
@@ -173,7 +96,7 @@ export class MapScene extends Scene {
         this.renderDialogueView(
             this.dialogueSystem.startText(
                 'Hazel',
-                [location.lockedText ?? 'That part of the map is still arguing with production.']
+                [result.text]
             )
         );
     }
@@ -196,12 +119,7 @@ export class MapScene extends Scene {
     }
 
     private findLocationAtPoint(x: number, y: number) {
-        return MAP_LOCATIONS.find((location) => (
-            x >= location.x
-            && x <= location.x + location.width
-            && y >= location.y
-            && y <= location.y + location.height
-        ));
+        return findMapLocationAtPoint(mapLocations, x, y);
     }
 
     private positionHoverLabel(pointer: Input.Pointer, text: string) {
