@@ -19,4 +19,18 @@ describe('SceneDataLoader', () => {
             targetScene: 'office'
         });
     });
+
+    it('loads the reconciled Sprint 4 street hotspots', () => {
+        const street = loadSceneData('street');
+        const hotspotIds = street.hotspots.map((hotspot) => hotspot.id);
+
+        expect(hotspotIds).toEqual(expect.arrayContaining([
+            'agency_sign',
+            'cafe',
+            'suspicious_footprints',
+            'newspaper_box',
+            'manhole_cover',
+            'bicycle'
+        ]));
+    });
 });

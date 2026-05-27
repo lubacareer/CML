@@ -42,3 +42,10 @@
 - Apply dialogue effects when a node completes, so `case001_started` and `map_unlocked` are set only after Hazel finishes accepting the case.
 - Gate map access behind `map_unlocked`; pre-case map commands return Hazel dialogue and keep the current scene active.
 - Embed the newly generated cafe, police kiosk, alley, NPC, and invalid alibi assets as preview-only map destinations with stable keys while preserving the source assets unchanged.
+
+## Sprint 4
+
+- Treat Sprint 4 as a reconciliation sprint because street rendering, office/street transitions, and map preview routing already existed.
+- Keep street content data-driven in `street.json` and add only look responses for missing official street hotspots.
+- Preserve case flags and inventory in `GameState` across scene changes instead of introducing a separate transition state store.
+- Defer inventory effects, cafe gameplay, and puzzle-chain unlocks to later sprints.

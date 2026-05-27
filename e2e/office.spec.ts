@@ -274,6 +274,7 @@ test('clicking the street bicycle does not place Hazel on the bicycle', async ({
     await page.getByTestId('action-exit').click();
     await waitForScene(page, 'street');
 
+    await page.getByTestId('action-walk').click();
     await page.mouse.click(900, 585);
     await page.waitForFunction(() => (window as any).__CML_DEBUG__.hazel.state === 'walking');
     await page.waitForFunction(() => (window as any).__CML_DEBUG__.hazel.state === 'idle');
@@ -282,6 +283,36 @@ test('clicking the street bicycle does not place Hazel on the bicycle', async ({
     const isOnBicycle = hazel.x >= 745 && hazel.x <= 1040 && hazel.y >= 455 && hazel.y <= 625;
 
     expect(isOnBicycle).toBe(false);
+});
+
+test('street scene preserves case state and exposes reconciled hotspots', async ({ page }) => {
+    await page.goto('/');
+    await waitForScene(page, 'office');
+    await answerPhoneAndUnlockMap(page);
+
+    await page.getByTestId('action-exit').click();
+    await waitForScene(page, 'street');
+
+    await expect.poll(
+        async () => page.evaluate(() => (window as any).__CML_DEBUG__?.state?.flags?.case001_started)
+    ).toBe(true);
+    await expect.poll(
+        async () => page.evaluate(() => (window as any).__CML_DEBUG__?.state?.flags?.map_unlocked)
+    ).toBe(true);
+
+    await page.mouse.click(500, 145);
+
+    const dialogueBox = page.getByTestId('dialogue-box');
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('P. Hazel Detective Agency.');
+
+    await page.keyboard.press('Escape');
+    await expect(dialogueBox).toBeHidden();
+
+    await page.mouse.click(340, 600);
+
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('The footprints head in three directions at once.');
 });
 
 test('clicking the office door moves to the street scene', async ({ page }) => {
