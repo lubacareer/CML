@@ -21,14 +21,6 @@ const waitForInventoryItem = async (page: Page, itemId: string) => {
     );
 };
 
-const waitForPreview = async (page: Page, previewId: string) => {
-    await waitForScene(page, 'asset-preview');
-    await page.waitForFunction(
-        (expectedPreviewId) => (window as any).__CML_DEBUG__?.previewId === expectedPreviewId,
-        previewId
-    );
-};
-
 const answerPhoneAndUnlockMap = async (page: Page) => {
     await page.getByTestId('action-use').click();
     await page.mouse.click(430, 410);
@@ -408,7 +400,7 @@ test('picks up cold coffee and uses it from the inventory', async ({ page }) => 
     );
 });
 
-test('map locations open generated asset previews after the case starts', async ({ page }) => {
+test('map routes unlocked locations and explains locked destinations', async ({ page }) => {
     await page.goto('/');
     await waitForScene(page, 'office');
     await answerPhoneAndUnlockMap(page);
@@ -417,17 +409,22 @@ test('map locations open generated asset previews after the case starts', async 
     await waitForScene(page, 'map');
 
     await page.mouse.click(660, 210);
-    await waitForPreview(page, 'cafe');
+    await waitForScene(page, 'street');
 
-    await page.keyboard.press('Escape');
+    await page.keyboard.press('M');
     await waitForScene(page, 'map');
 
     await page.mouse.click(1000, 225);
-    await waitForPreview(page, 'police-kiosk');
+    const dialogueBox = page.getByTestId('dialogue-box');
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('The police kiosk is locked behind paperwork.');
+    await waitForScene(page, 'map');
 
     await page.keyboard.press('Escape');
     await waitForScene(page, 'map');
 
     await page.mouse.click(560, 560);
-    await waitForPreview(page, 'alley');
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('The alley refuses to be investigated before it has a proper clue.');
+    await waitForScene(page, 'map');
 });

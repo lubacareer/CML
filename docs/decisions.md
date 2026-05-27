@@ -56,3 +56,9 @@
 - Store item metadata in a stable data table with display name, description, icon key, and duplicate policy.
 - Treat Use on a hotspot with a selected item as item-on-hotspot input before falling back to normal use/pickup interactions.
 - Keep Cold Coffee on locked drawer as a humorous failure response; puzzle-chain unlocks stay deferred.
+
+## Sprint 6
+
+- Move map location data out of `MapScene` and resolve location clicks through `MapNavigationSystem`.
+- Keep only the detective agency and street/cafe exterior initially unlocked after `map_unlocked`; future destinations require explicit flags.
+- Preserve generated cafe, police kiosk, and alley preview scenes as staged assets, but gate them behind future unlock flags.

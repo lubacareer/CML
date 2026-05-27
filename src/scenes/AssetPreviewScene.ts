@@ -1,8 +1,7 @@
 import { Scene } from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
+import type { AssetPreviewId } from '../game/types';
 import { gameState } from '../systems/GameState';
-
-export type AssetPreviewId = 'cafe' | 'police-kiosk' | 'alley';
 
 interface AssetPreviewSprite {
     key: string;
