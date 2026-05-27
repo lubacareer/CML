@@ -62,3 +62,10 @@
 - Move map location data out of `MapScene` and resolve location clicks through `MapNavigationSystem`.
 - Keep only the detective agency and street/cafe exterior initially unlocked after `map_unlocked`; future destinations require explicit flags.
 - Preserve generated cafe, police kiosk, and alley preview scenes as staged assets, but gate them behind future unlock flags.
+
+## Sprint 7
+
+- Keep the first puzzle chain data-driven through street hotspot effects, inventory item interactions, and map location item interactions.
+- Let selected inventory items persist into the map scene so `invalid_alibi` can be used on the police kiosk without adding a second map-specific toolbar.
+- Render Hazel's inventory as a DOM suitcase grid so item buttons stay accessible and Playwright-addressable while the Phaser playfield remains clear.
+- Add a compact generated Cold Coffee item icon only for the missing inventory-grid runtime art; leave the existing generated asset batch unchanged.

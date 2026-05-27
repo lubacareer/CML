@@ -32,6 +32,17 @@ export const mapLocations: MapLocationData[] = [
         height: 240,
         requiredFlag: 'police_kiosk_unlocked',
         previewId: 'police-kiosk',
+        itemInteractions: {
+            invalid_alibi: {
+                type: 'effects',
+                effects: [
+                    { type: 'setFlag', flag: 'police_kiosk_unlocked' },
+                    { type: 'setFlag', flag: 'invalid_alibi_delivered' },
+                    { type: 'setFlag', flag: 'alley_unlocked' }
+                ],
+                text: 'Hazel files the Invalid Alibi at the police kiosk. The paperwork panics, approves itself, and unlocks the narrow alley.'
+            }
+        },
         lockedText: 'The police kiosk is locked behind paperwork. Terrifying paperwork.'
     },
     {

@@ -79,7 +79,11 @@ export class MapScene extends Scene {
             return;
         }
 
-        const result = resolveMapLocation(location, gameState.getFlags());
+        const result = resolveMapLocation(
+            location,
+            gameState.getFlags(),
+            gameState.getSelectedItemId()
+        );
 
         if (result.type === 'changeScene') {
             this.scene.start(this.getSceneKey(result.sceneId));
@@ -90,6 +94,13 @@ export class MapScene extends Scene {
             this.scene.start('AssetPreviewScene', {
                 previewId: result.previewId
             });
+            return;
+        }
+
+        if (result.type === 'interaction') {
+            this.renderDialogueView(
+                this.dialogueSystem.resolveInteractionResult(result.result, location.name)
+            );
             return;
         }
 

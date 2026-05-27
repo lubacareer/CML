@@ -15,6 +15,7 @@ const newBackgroundAssetNames = ['cafe', 'police-kiosk', 'alley'];
 const transparentRuntimeAssets = [
     'public/assets/characters/npcs/cafe_owner.png',
     'public/assets/characters/npcs/overly_rational_pigeon.png',
+    'public/assets/items/cold-coffee.png',
     'public/assets/items/invalid_alibi.png'
 ];
 
@@ -50,7 +51,7 @@ describe('Generated runtime assets', () => {
         });
     });
 
-    it('includes transparent Sprint 3 NPC and item cutouts', () => {
+    it('includes transparent NPC and item cutouts', () => {
         transparentRuntimeAssets.forEach((assetPath) => {
             const image = PNG.sync.read(fs.readFileSync(path.resolve(assetPath)));
             const transparentPixels = image.data.filter((_, index) => index % 4 === 3 && image.data[index] === 0);

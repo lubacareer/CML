@@ -1,8 +1,9 @@
-import type { AssetPreviewId, MapLocationData, SceneId } from '../game/types';
+import type { AssetPreviewId, InteractionResult, MapLocationData, SceneId } from '../game/types';
 
 export type MapNavigationResult =
     | { type: 'changeScene'; sceneId: SceneId }
     | { type: 'preview'; previewId: AssetPreviewId }
+    | { type: 'interaction'; result: InteractionResult }
     | { type: 'locked'; text: string };
 
 export const findMapLocationAtPoint = (
@@ -25,9 +26,20 @@ export const isMapLocationUnlocked = (
 
 export const resolveMapLocation = (
     location: MapLocationData,
-    flags: Record<string, boolean>
+    flags: Record<string, boolean>,
+    selectedItemId?: string
 ): MapNavigationResult => {
-    if (!isMapLocationUnlocked(location, flags)) {
+    const unlocked = isMapLocationUnlocked(location, flags);
+    const itemInteraction = selectedItemId ? location.itemInteractions?.[selectedItemId] : undefined;
+
+    if (!unlocked && itemInteraction) {
+        return {
+            type: 'interaction',
+            result: itemInteraction
+        };
+    }
+
+    if (!unlocked) {
         return {
             type: 'locked',
             text: location.lockedText

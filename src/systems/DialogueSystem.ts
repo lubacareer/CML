@@ -1,5 +1,5 @@
 import officeDialogueData from '../data/dialogue/office.dialogue.json';
-import type { DialogueData, DialogueNode, DialogueView, InteractionResult } from '../game/types';
+import type { DialogueData, DialogueNode, DialogueView, InteractionEffect, InteractionResult } from '../game/types';
 import { GameState, gameState } from './GameState';
 import { InventorySystem } from './InventorySystem';
 
@@ -130,6 +130,11 @@ export class DialogueSystem {
             return this.startText('Hazel', [result.text ?? 'That changes things. Probably.']);
         }
 
+        if (result.type === 'effects') {
+            this.applyInteractionEffects(result.effects);
+            return this.startText('Hazel', [result.text]);
+        }
+
         return this.startText('Hazel', ['That interaction needs a later sprint before it can make sense.']);
     }
 
@@ -200,6 +205,17 @@ export class DialogueSystem {
             if (effect.type === 'setFlag') {
                 this.state.setFlag(effect.flag);
             }
+        });
+    }
+
+    private applyInteractionEffects(effects: InteractionEffect[]) {
+        effects.forEach((effect) => {
+            if (effect.type === 'setFlag') {
+                this.state.setFlag(effect.flag);
+                return;
+            }
+
+            this.inventorySystem.addItem(effect.itemId);
         });
     }
 

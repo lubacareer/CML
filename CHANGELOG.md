@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added Sprint 7 puzzle progression from suspicious footprints and cafe exterior investigation through pigeon exchange, invalid alibi filing, and alley unlock.
+- Added a suitcase-style inventory panel with a 2D icon grid and runtime item art for Cold Coffee and Invalid Alibi.
+- Added unit and browser coverage for the first complete puzzle chain.
 - Added Sprint 6 map location data and pure navigation resolution for unlocked routes, future preview routes, and locked responses.
 - Updated map behavior so only the detective agency and street/cafe exterior are initially reachable after the case starts.
 - Added unit and browser coverage for locked and unlocked map destinations.

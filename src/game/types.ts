@@ -53,16 +53,33 @@ export interface HotspotData {
     interactions: Partial<Record<InteractionVerb, InteractionResult>>;
     itemInteractions?: Partial<Record<string, InteractionResult>>;
     requiredFlag?: string;
+    requiredFlags?: string[];
     hiddenWhenFlag?: string;
+    sprite?: HotspotSpriteData;
+}
+
+export interface HotspotSpriteData {
+    key: string;
+    x: number;
+    y: number;
+    width?: number;
+    height?: number;
+    scale?: number;
+    depth?: number;
 }
 
 export type InteractionVerb = 'look' | 'talk' | 'use' | 'pickup';
+
+export type InteractionEffect =
+    | { type: 'setFlag'; flag: string }
+    | { type: 'addItem'; itemId: string };
 
 export type InteractionResult =
     | { type: 'dialogue'; dialogueId: string }
     | { type: 'text'; text: string }
     | { type: 'addItem'; itemId: string; text?: string }
     | { type: 'setFlag'; flag: string; text?: string }
+    | { type: 'effects'; effects: InteractionEffect[]; text: string }
     | { type: 'changeScene'; sceneId: SceneId }
     | { type: 'custom'; actionId: string };
 
@@ -103,6 +120,7 @@ export interface MapLocationData {
     requiredFlag?: string;
     targetScene?: SceneId;
     previewId?: AssetPreviewId;
+    itemInteractions?: Partial<Record<string, InteractionResult>>;
     lockedText: string;
 }
 

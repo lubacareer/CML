@@ -25,6 +25,21 @@ describe('MapNavigationSystem', () => {
         });
     });
 
+    it('resolves item use on a locked map location before normal navigation', () => {
+        const policeKiosk = mapLocations.find((location) => location.id === 'police_kiosk');
+
+        expect(policeKiosk).toBeDefined();
+        expect(resolveMapLocation(policeKiosk!, {}, 'invalid_alibi')).toMatchObject({
+            type: 'interaction',
+            result: {
+                type: 'effects',
+                effects: expect.arrayContaining([
+                    { type: 'setFlag', flag: 'alley_unlocked' }
+                ])
+            }
+        });
+    });
+
     it('returns a scene transition for an initially unlocked location', () => {
         const cafe = mapLocations.find((location) => location.id === 'cozy_cafe');
 
@@ -42,6 +57,16 @@ describe('MapNavigationSystem', () => {
         expect(resolveMapLocation(alley!, { alley_unlocked: true })).toEqual({
             type: 'preview',
             previewId: 'alley'
+        });
+    });
+
+    it('uses normal navigation after an item-unlocked location is open', () => {
+        const policeKiosk = mapLocations.find((location) => location.id === 'police_kiosk');
+
+        expect(policeKiosk).toBeDefined();
+        expect(resolveMapLocation(policeKiosk!, { police_kiosk_unlocked: true }, 'invalid_alibi')).toEqual({
+            type: 'preview',
+            previewId: 'police-kiosk'
         });
     });
 
