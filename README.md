@@ -37,15 +37,19 @@ The original generated PNGs are preserved in the project root. AI-generated sour
 - Esc: close dialogue/menu
 - H: toggle hotspot debug rectangles in development
 - I: inventory
-- M: open the map preview from office or street
+- M: open the map preview after the first case starts
 
 ## Current playable slice
 
-Sprint 2 boots directly into P. Hazel's office. You can click valid floor space to move Hazel through the office walkable area with directional walk/idle animations. The office floor is constrained by scene navigation polygons, so Hazel routes around the desk instead of walking across the whole screen. Hover/click the five office hotspots to inspect them.
+Sprint 3 boots directly into P. Hazel's office. You can click valid floor space to move Hazel through the office walkable area with directional walk/idle animations. The office floor is constrained by scene navigation polygons, so Hazel routes around the desk instead of walking across the whole screen. Hover/click the five office hotspots to inspect them.
 
-Click the office door or toolbar exit icon to reach the street scene. Press `M` or use the toolbar map icon from office or street to open the map preview, then click Detective Agency Office or Cozy Cafe / Street to transition between the implemented scenes. Locked map locations show placeholder Hazel dialogue.
+Use the phone to answer the first client call. The branching conversation starts `case001_missing_logic`, sets `case001_started`, and unlocks the map. Before that call, `M` and the toolbar map icon show Hazel's locked-map response instead of leaving the current scene.
+
+Click the office door or toolbar exit icon to reach the street scene. After the phone call, press `M` or use the toolbar map icon from office or street to open the map preview. Detective Agency Office returns to the office; Daisy's Cafe, the police kiosk, and the narrow alley open generated-art preview scenes while their gameplay remains locked for later sprints.
 
 Dialogue appears in a DOM overlay and can be advanced with click or Space, or closed with Esc.
+
+Cafe, police kiosk, alley, cafe owner, overly rational pigeon, and invalid alibi art are embedded as preview-only map destinations. These are visual staging screens, not full gameplay scenes yet.
 
 ## Asset scripts
 
@@ -57,4 +61,4 @@ This normalizes the approved `Hazel2.png` character sheet and AI source strips i
 
 ## Development style
 
-This project follows short agile sprints. Sprint 0 established the Phaser/Vite/TypeScript shell, tests, docs, and asset layout. Sprint 1 added the first playable office scene. Sprint 2 replaces the temporary marker with Hazel sprite animation.
+This project follows short agile sprints. Sprint 0 established the Phaser/Vite/TypeScript shell, tests, docs, and asset layout. Sprint 1 added the first playable office scene. Sprint 2 replaced the temporary marker with Hazel sprite animation. Sprint 3 added branching phone dialogue and case-start map unlocking.

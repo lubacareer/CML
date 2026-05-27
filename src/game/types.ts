@@ -87,3 +87,16 @@ export interface DialogueNode {
 }
 
 export type DialogueData = Record<string, DialogueNode>;
+
+export interface DialogueViewChoice {
+    text: string;
+    index: number;
+}
+
+export interface DialogueView {
+    speaker: string;
+    line: string;
+    lineIndex: number;
+    lineCount: number;
+    choices: DialogueViewChoice[];
+}

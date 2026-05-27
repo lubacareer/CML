@@ -66,6 +66,32 @@ body {
     line-height: 1.35;
 }
 
+.dialogue-box__choices {
+    display: grid;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.dialogue-box__choice {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(243, 193, 75, 0.55);
+    border-radius: 6px;
+    background: rgba(26, 28, 36, 0.86);
+    color: #f7efe2;
+    cursor: pointer;
+    font: inherit;
+    line-height: 1.25;
+    text-align: left;
+}
+
+.dialogue-box__choice:hover,
+.dialogue-box__choice:focus-visible {
+    border-color: rgba(243, 193, 75, 0.95);
+    background: rgba(70, 57, 36, 0.9);
+    outline: none;
+}
+
 .dialogue-box__progress {
     margin-top: 10px;
     color: #aeb6c7;

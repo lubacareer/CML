@@ -34,3 +34,11 @@
 - Keep approved `Hazel2.png` side movement as the source of truth for side animations; use generated art only for missing front/back movement.
 - Store generated raw sheets in `source-assets/` and regenerate runtime PNGs with `npm run build:assets`.
 - Keep point-and-click controls as DOM UI so toolbar buttons are accessible and Playwright-addressable.
+
+## Sprint 3
+
+- Keep the first case start in the existing office phone flow instead of opening new cafe, police, or alley gameplay yet.
+- Treat dialogue progression as gameplay state owned by `DialogueSystem`; Phaser scenes only pass input to the system and render the returned view.
+- Apply dialogue effects when a node completes, so `case001_started` and `map_unlocked` are set only after Hazel finishes accepting the case.
+- Gate map access behind `map_unlocked`; pre-case map commands return Hazel dialogue and keep the current scene active.
+- Embed the newly generated cafe, police kiosk, alley, NPC, and invalid alibi assets as preview-only map destinations with stable keys while preserving the source assets unchanged.

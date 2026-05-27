@@ -1,7 +1,9 @@
 import { Scene } from 'phaser';
 import type { GameObjects, Input } from 'phaser';
 import { DEBUG_HOTSPOTS, GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
-import type { SceneId } from '../game/types';
+import type { DialogueView, SceneId } from '../game/types';
+import type { AssetPreviewId } from './AssetPreviewScene';
+import { DialogueSystem } from '../systems/DialogueSystem';
 import { gameState } from '../systems/GameState';
 import { DebugPanel } from '../ui/DebugPanel';
 import { DialogueBox } from '../ui/DialogueBox';
@@ -14,6 +16,7 @@ interface MapLocation {
     width: number;
     height: number;
     targetScene?: SceneId;
+    previewId?: AssetPreviewId;
     lockedText?: string;
 }
 
@@ -34,7 +37,7 @@ const MAP_LOCATIONS: MapLocation[] = [
         y: 90,
         width: 280,
         height: 220,
-        targetScene: 'street'
+        previewId: 'cafe'
     },
     {
         id: 'police_kiosk',
@@ -43,6 +46,7 @@ const MAP_LOCATIONS: MapLocation[] = [
         y: 105,
         width: 235,
         height: 240,
+        previewId: 'police-kiosk',
         lockedText: 'The police kiosk is locked behind paperwork. Terrifying paperwork.'
     },
     {
@@ -70,6 +74,7 @@ const MAP_LOCATIONS: MapLocation[] = [
         y: 455,
         width: 210,
         height: 220,
+        previewId: 'alley',
         lockedText: 'The alley refuses to be investigated before it has a proper clue.'
     },
     {
@@ -84,6 +89,7 @@ const MAP_LOCATIONS: MapLocation[] = [
 ];
 
 export class MapScene extends Scene {
+    private dialogueSystem = new DialogueSystem();
     private dialogueBox?: DialogueBox;
     private debugPanel?: DebugPanel;
     private hoverLabel?: GameObjects.Text;
@@ -115,7 +121,11 @@ export class MapScene extends Scene {
     private createDomOverlays() {
         const parent = this.game.canvas.parentElement ?? document.body;
 
-        this.dialogueBox = new DialogueBox(parent);
+        this.dialogueBox = new DialogueBox(parent, {
+            onAdvance: () => this.advanceDialogue(),
+            onChoice: this.chooseDialogueOption,
+            onClose: this.handleDialogueClosed
+        });
 
         if (DEBUG_HOTSPOTS) {
             this.debugPanel = new DebugPanel(parent);
@@ -153,10 +163,19 @@ export class MapScene extends Scene {
             return;
         }
 
-        this.dialogueBox?.show({
-            speaker: 'Hazel',
-            lines: [location.lockedText ?? 'That part of the map is still arguing with production.']
-        });
+        if (location.previewId) {
+            this.scene.start('AssetPreviewScene', {
+                previewId: location.previewId
+            });
+            return;
+        }
+
+        this.renderDialogueView(
+            this.dialogueSystem.startText(
+                'Hazel',
+                [location.lockedText ?? 'That part of the map is still arguing with production.']
+            )
+        );
     }
 
     private handlePointerMove(pointer: Input.Pointer) {
@@ -202,6 +221,7 @@ export class MapScene extends Scene {
 
     private returnToOffice() {
         if (this.dialogueBox?.isOpen()) {
+            this.dialogueSystem.cancel();
             this.dialogueBox.close();
             return;
         }
@@ -210,7 +230,24 @@ export class MapScene extends Scene {
     }
 
     private advanceDialogue() {
-        this.dialogueBox?.advance();
+        this.renderDialogueView(this.dialogueSystem.advance());
+    }
+
+    private chooseDialogueOption = (choiceIndex: number) => {
+        this.renderDialogueView(this.dialogueSystem.choose(choiceIndex));
+    };
+
+    private renderDialogueView(view: DialogueView | undefined) {
+        if (!view) {
+            this.dialogueBox?.close();
+            this.debugPanel?.update(gameState.getSnapshot());
+            this.publishDebugState();
+            return;
+        }
+
+        this.dialogueBox?.show(view);
+        this.debugPanel?.update(gameState.getSnapshot());
+        this.publishDebugState();
     }
 
     private getSceneKey(sceneId: SceneId) {
@@ -229,13 +266,20 @@ export class MapScene extends Scene {
         const debugWindow = window as Window & {
             __CML_DEBUG__?: {
                 scene: string;
+                state: ReturnType<typeof gameState.getSnapshot>;
             };
         };
 
         debugWindow.__CML_DEBUG__ = {
-            scene: 'map'
+            scene: 'map',
+            state: gameState.getSnapshot()
         };
     }
+
+    private handleDialogueClosed = () => {
+        this.debugPanel?.update(gameState.getSnapshot());
+        this.publishDebugState();
+    };
 
     private destroyDomOverlays() {
         this.dialogueBox?.destroy();
