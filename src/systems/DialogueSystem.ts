@@ -1,6 +1,7 @@
 import officeDialogueData from '../data/dialogue/office.dialogue.json';
 import type { DialogueData, DialogueNode, DialogueView, InteractionResult } from '../game/types';
 import { GameState, gameState } from './GameState';
+import { InventorySystem } from './InventorySystem';
 
 export interface DialogueDisplayContent {
     speaker: string;
@@ -14,7 +15,8 @@ export class DialogueSystem {
 
     constructor(
         private readonly dialogueData: DialogueData = officeDialogueData as DialogueData,
-        private readonly state: GameState = gameState
+        private readonly state: GameState = gameState,
+        private readonly inventorySystem: InventorySystem = new InventorySystem(state)
     ) {}
 
     getNode(dialogueId: string): DialogueNode | undefined {
@@ -114,8 +116,13 @@ export class DialogueSystem {
         }
 
         if (result.type === 'addItem') {
-            this.state.addItem(result.itemId);
-            return this.startText('Hazel', [result.text ?? `You acquired ${result.itemId}.`]);
+            const addResult = this.inventorySystem.addItem(result.itemId);
+            const itemName = addResult.item?.displayName ?? result.itemId;
+            const fallbackText = addResult.added
+                ? `You acquired ${itemName}.`
+                : `${itemName} is already in the inventory. Two would be a cry for help.`;
+
+            return this.startText('Hazel', [result.text ?? fallbackText]);
         }
 
         if (result.type === 'setFlag') {

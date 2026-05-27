@@ -19,6 +19,7 @@ describe('GameState', () => {
         state.setFlag('case001_started');
         state.setFlag('map_unlocked');
         state.addItem('cold_coffee');
+        state.selectItem('cold_coffee');
         state.setCurrentScene('street');
         state.setCurrentScene('office');
 
@@ -28,7 +29,8 @@ describe('GameState', () => {
                 case001_started: true,
                 map_unlocked: true
             },
-            inventory: ['cold_coffee']
+            inventory: ['cold_coffee'],
+            selectedItemId: 'cold_coffee'
         });
     });
 });

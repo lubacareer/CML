@@ -49,3 +49,10 @@
 - Keep street content data-driven in `street.json` and add only look responses for missing official street hotspots.
 - Preserve case flags and inventory in `GameState` across scene changes instead of introducing a separate transition state store.
 - Defer inventory effects, cafe gameplay, and puzzle-chain unlocks to later sprints.
+
+## Sprint 5
+
+- Keep inventory state in `GameState` and item rules in `InventorySystem` so Phaser scenes only route pickup, selection, and use input.
+- Store item metadata in a stable data table with display name, description, icon key, and duplicate policy.
+- Treat Use on a hotspot with a selected item as item-on-hotspot input before falling back to normal use/pickup interactions.
+- Keep Cold Coffee on locked drawer as a humorous failure response; puzzle-chain unlocks stay deferred.

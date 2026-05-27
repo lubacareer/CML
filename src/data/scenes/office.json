@@ -184,6 +184,12 @@
           "type": "custom",
           "actionId": "use_item_on_locked_drawer"
         }
+      },
+      "itemInteractions": {
+        "cold_coffee": {
+          "type": "text",
+          "text": "Hazel gives the locked drawer a serious splash of Cold Coffee. The drawer remains locked, but now it is disappointed and damp."
+        }
       }
     },
     {

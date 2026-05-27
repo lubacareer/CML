@@ -14,6 +14,13 @@ const waitForFlag = async (page: Page, flag: string) => {
     );
 };
 
+const waitForInventoryItem = async (page: Page, itemId: string) => {
+    await page.waitForFunction(
+        (expectedItemId) => (window as any).__CML_DEBUG__?.state?.inventory?.includes(expectedItemId),
+        itemId
+    );
+};
+
 const waitForPreview = async (page: Page, previewId: string) => {
     await waitForScene(page, 'asset-preview');
     await page.waitForFunction(
@@ -363,6 +370,42 @@ test('answering the phone starts the case and unlocks the map', async ({ page })
     await page.keyboard.press('M');
 
     await waitForScene(page, 'map');
+});
+
+test('picks up cold coffee and uses it from the inventory', async ({ page }) => {
+    await page.goto('/');
+    await waitForScene(page, 'office');
+
+    await page.getByTestId('action-use').click();
+    await page.mouse.click(1150, 560);
+
+    const dialogueBox = page.getByTestId('dialogue-box');
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('You acquired Cold Coffee. It has seen things.');
+    await waitForInventoryItem(page, 'cold_coffee');
+
+    await page.keyboard.press('Escape');
+    await expect(dialogueBox).toBeHidden();
+
+    await page.keyboard.press('I');
+
+    const inventoryBar = page.getByTestId('inventory-bar');
+    await expect(inventoryBar).toBeVisible();
+    await expect(inventoryBar).toContainText('Cold Coffee');
+
+    await page.getByTestId('inventory-item-cold_coffee').click();
+
+    await expect(page.getByTestId('inventory-item-cold_coffee')).toHaveAttribute('aria-pressed', 'true');
+    await expect.poll(
+        async () => page.evaluate(() => (window as any).__CML_DEBUG__?.state?.selectedItemId)
+    ).toBe('cold_coffee');
+
+    await page.mouse.click(770, 525);
+
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText(
+        'Hazel gives the locked drawer a serious splash of Cold Coffee.'
+    );
 });
 
 test('map locations open generated asset previews after the case starts', async ({ page }) => {

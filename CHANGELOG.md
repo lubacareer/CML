@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added Sprint 5 inventory metadata, inventory UI bar, item selection, and selected-item hotspot use.
+- Added Cold Coffee pickup from the office coffee machine and a locked-drawer item-use failure response.
+- Added inventory system unit coverage and browser coverage for pickup, inventory opening, selection, and item use.
 - Reconciled Sprint 4 street content with agency sign, cafe, suspicious footprints, newspaper box, manhole cover, bicycle, and oddities shop hotspots.
 - Added scene-state and browser coverage for preserving case flags through office-to-street transitions.
 - Added Sprint 3 branching dialogue progression for the first client phone call.

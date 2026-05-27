@@ -61,6 +61,15 @@ export class ActionToolbar {
         return this.activeAction;
     }
 
+    setActiveAction(action: ToolbarAction) {
+        if (!selectableActions.has(action)) {
+            return;
+        }
+
+        this.activeAction = action;
+        this.render();
+    }
+
     setMuted(muted: boolean) {
         this.root.classList.toggle('action-toolbar--muted', muted);
     }

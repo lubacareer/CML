@@ -3,10 +3,11 @@ import type { GameObjects, Input } from 'phaser';
 import { getHazelAnimationKey, registerHazelAnimations } from '../game/characterAnimations';
 import { DEBUG_HOTSPOTS, GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
 import { HAZEL_DISPLAY_SCALE, HAZEL_TEXTURE_KEY } from '../game/hazelAnimationConfig';
-import type { DialogueView, GameSceneData, HotspotData, SceneExitData, SceneId } from '../game/types';
+import type { DialogueView, GameSceneData, HotspotData, InteractionVerb, SceneExitData, SceneId } from '../game/types';
 import { DialogueSystem } from '../systems/DialogueSystem';
 import { gameState } from '../systems/GameState';
 import { findHotspotAtPoint } from '../systems/HotspotSystem';
+import { InventorySystem } from '../systems/InventorySystem';
 import { resolveCustomInteraction } from '../systems/InteractionSystem';
 import { findNavigationPath } from '../systems/NavigationSystem';
 import { PlayerController2D } from '../systems/PlayerController2D';
@@ -17,6 +18,7 @@ import { ActionToolbar, isInteractionVerbAction } from '../ui/ActionToolbar';
 import type { ToolbarAction } from '../ui/ActionToolbar';
 import { DebugPanel } from '../ui/DebugPanel';
 import { DialogueBox } from '../ui/DialogueBox';
+import { InventoryBar } from '../ui/InventoryBar';
 
 const HAZEL_MIN_X = 40;
 const HAZEL_MAX_X = GAME_WIDTH - 40;
@@ -28,8 +30,10 @@ export class StreetScene extends Scene {
     private playerController!: PlayerController2D;
     private hazelAnimationKey?: string;
     private dialogueSystem = new DialogueSystem();
+    private inventorySystem = new InventorySystem(gameState);
     private dialogueBox?: DialogueBox;
     private actionToolbar?: ActionToolbar;
+    private inventoryBar?: InventoryBar;
     private debugPanel?: DebugPanel;
     private hoverLabel?: GameObjects.Text;
 
@@ -54,6 +58,7 @@ export class StreetScene extends Scene {
         this.input.keyboard?.on('keydown-ESC', this.closeDialogue, this);
         this.input.keyboard?.on('keydown-SPACE', this.advanceDialogue, this);
         this.input.keyboard?.on('keydown-M', this.openMap, this);
+        window.addEventListener('keydown', this.handleInventoryKeyDown);
 
         this.events.once('shutdown', this.destroyDomOverlays, this);
         this.events.once('destroy', this.destroyDomOverlays, this);
@@ -100,6 +105,8 @@ export class StreetScene extends Scene {
             onClose: this.handleDialogueClosed
         });
         this.actionToolbar = new ActionToolbar(parent, this.handleToolbarAction);
+        this.inventoryBar = new InventoryBar(parent, this.handleInventoryItemSelected);
+        this.refreshInventoryBar();
 
         if (DEBUG_HOTSPOTS) {
             this.debugPanel = new DebugPanel(parent);
@@ -189,6 +196,12 @@ export class StreetScene extends Scene {
         this.hideHoverLabel();
     }
 
+    private handleInventoryKeyDown = (event: KeyboardEvent) => {
+        if (event.key.toLowerCase() === 'i') {
+            this.toggleInventory();
+        }
+    };
+
     private positionHoverLabel(pointer: Input.Pointer, text: string) {
         this.hoverLabel?.setText(text);
         this.hoverLabel?.setVisible(true);
@@ -206,11 +219,27 @@ export class StreetScene extends Scene {
 
     private performHotspotInteraction(hotspot: HotspotData, verb = hotspot.defaultVerb) {
         this.hideHoverLabel();
-        const result = resolveCustomInteraction(hotspot.interactions[verb]);
+        const result = resolveCustomInteraction(this.getInteractionResult(hotspot, verb));
 
         this.renderDialogueView(
             this.dialogueSystem.resolveInteractionResult(result, hotspot.name)
         );
+    }
+
+    private getInteractionResult(hotspot: HotspotData, verb: InteractionVerb) {
+        if (verb === 'use') {
+            const itemUse = this.inventorySystem.useSelectedItemOnHotspot(hotspot);
+
+            if (itemUse) {
+                return itemUse.result;
+            }
+
+            if (!hotspot.interactions.use && hotspot.interactions.pickup) {
+                return hotspot.interactions.pickup;
+            }
+        }
+
+        return hotspot.interactions[verb];
     }
 
     private moveHazelTo(x: number, y: number) {
@@ -269,16 +298,34 @@ export class StreetScene extends Scene {
         }
 
         if (action === 'inventory') {
-            const inventory = gameState.getSnapshot().inventory;
-            this.renderDialogueView(
-                this.dialogueSystem.startText('Hazel', [
-                    inventory.length > 0
-                        ? `Inventory: ${inventory.join(', ')}.`
-                        : 'Inventory is empty. My pockets are full of suspicion, but that is not actionable.'
-                ])
-            );
+            this.toggleInventory();
         }
     };
+
+    private toggleInventory() {
+        if (this.dialogueBox?.isOpen()) {
+            return;
+        }
+
+        this.inventoryBar?.toggle();
+        this.refreshInventoryBar();
+    }
+
+    private handleInventoryItemSelected = (itemId: string) => {
+        const item = this.inventorySystem.selectItem(itemId);
+
+        if (!item) {
+            return;
+        }
+
+        this.actionToolbar?.setActiveAction('use');
+        this.refreshInventoryBar();
+        this.publishDebugState();
+    };
+
+    private refreshInventoryBar() {
+        this.inventoryBar?.update(this.inventorySystem.getView());
+    }
 
     private openMap() {
         this.hideHoverLabel();
@@ -340,6 +387,7 @@ export class StreetScene extends Scene {
         if (!view) {
             this.dialogueBox?.close();
             this.actionToolbar?.setMuted(false);
+            this.refreshInventoryBar();
             this.debugPanel?.update(gameState.getSnapshot());
             this.publishDebugState();
             return;
@@ -347,11 +395,13 @@ export class StreetScene extends Scene {
 
         this.dialogueBox?.show(view);
         this.actionToolbar?.setMuted(true);
+        this.refreshInventoryBar();
         this.debugPanel?.update(gameState.getSnapshot());
         this.publishDebugState();
     }
 
     private handleDialogueClosed = () => {
+        this.dialogueSystem.cancel();
         this.actionToolbar?.setMuted(false);
         this.debugPanel?.update(gameState.getSnapshot());
         this.publishDebugState();
@@ -362,8 +412,11 @@ export class StreetScene extends Scene {
         this.dialogueBox = undefined;
         this.actionToolbar?.destroy();
         this.actionToolbar = undefined;
+        this.inventoryBar?.destroy();
+        this.inventoryBar = undefined;
         this.debugPanel?.destroy();
         this.debugPanel = undefined;
+        window.removeEventListener('keydown', this.handleInventoryKeyDown);
         this.game.canvas.style.cursor = 'default';
     }
 }
