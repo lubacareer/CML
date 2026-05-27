@@ -11,6 +11,12 @@ import {
 } from '../game/hazelAnimationConfig';
 
 const uiIconNames = ['walk', 'look', 'use', 'talk', 'exit', 'map', 'inventory'];
+const newBackgroundAssetNames = ['cafe', 'police-kiosk', 'alley'];
+const transparentRuntimeAssets = [
+    'public/assets/characters/npcs/cafe_owner.png',
+    'public/assets/characters/npcs/overly_rational_pigeon.png',
+    'public/assets/items/invalid_alibi.png'
+];
 
 describe('Generated runtime assets', () => {
     it('builds Hazel 4-direction sheet with the expected frame dimensions and count', () => {
@@ -30,6 +36,25 @@ describe('Generated runtime assets', () => {
 
             expect(image.width).toBe(64);
             expect(image.height).toBe(64);
+            expect(transparentPixels.length).toBeGreaterThan(0);
+        });
+    });
+
+    it('includes the Sprint 3 background assets at the fixed game resolution', () => {
+        newBackgroundAssetNames.forEach((assetName) => {
+            const assetPath = path.resolve(`public/assets/backgrounds/${assetName}.png`);
+            const image = PNG.sync.read(fs.readFileSync(assetPath));
+
+            expect(image.width).toBe(1280);
+            expect(image.height).toBe(720);
+        });
+    });
+
+    it('includes transparent Sprint 3 NPC and item cutouts', () => {
+        transparentRuntimeAssets.forEach((assetPath) => {
+            const image = PNG.sync.read(fs.readFileSync(path.resolve(assetPath)));
+            const transparentPixels = image.data.filter((_, index) => index % 4 === 3 && image.data[index] === 0);
+
             expect(transparentPixels.length).toBeGreaterThan(0);
         });
     });

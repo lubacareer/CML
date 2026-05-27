@@ -83,6 +83,66 @@
       }
     },
     {
+      "id": "suspicious_footprints",
+      "name": "Suspicious footprints",
+      "x": 235,
+      "y": 560,
+      "width": 250,
+      "height": 95,
+      "defaultVerb": "look",
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "The footprints head in three directions at once. Either logic is missing, or someone owns very ambitious shoes."
+        }
+      }
+    },
+    {
+      "id": "newspaper_box",
+      "name": "Newspaper box",
+      "x": 640,
+      "y": 415,
+      "width": 110,
+      "height": 165,
+      "defaultVerb": "look",
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "The headline reads: LOCAL ARGUMENT WINS ITSELF, REFUSES COMMENT."
+        }
+      }
+    },
+    {
+      "id": "manhole_cover",
+      "name": "Manhole cover",
+      "x": 520,
+      "y": 620,
+      "width": 160,
+      "height": 65,
+      "defaultVerb": "look",
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "A perfectly ordinary manhole, which is exactly what a suspicious manhole would want me to think."
+        }
+      }
+    },
+    {
+      "id": "bicycle",
+      "name": "Bicycle",
+      "x": 760,
+      "y": 455,
+      "width": 265,
+      "height": 170,
+      "defaultVerb": "look",
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "The bicycle is locked to itself. That is either excellent security or a cry for help."
+        }
+      }
+    },
+    {
       "id": "oddities_shop",
       "name": "Oddities and antiques",
       "x": 965,

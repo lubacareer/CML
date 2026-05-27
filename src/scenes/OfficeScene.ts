@@ -3,10 +3,11 @@ import type { GameObjects, Input } from 'phaser';
 import { getHazelAnimationKey, registerHazelAnimations } from '../game/characterAnimations';
 import { DEBUG_HOTSPOTS, GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
 import { HAZEL_TEXTURE_KEY } from '../game/hazelAnimationConfig';
-import type { GameSceneData, HotspotData, SceneExitData, SceneId } from '../game/types';
+import type { DialogueView, GameSceneData, HotspotData, SceneExitData, SceneId } from '../game/types';
 import { DialogueSystem } from '../systems/DialogueSystem';
 import { gameState } from '../systems/GameState';
 import { findHotspotAtPoint } from '../systems/HotspotSystem';
+import { resolveCustomInteraction } from '../systems/InteractionSystem';
 import { findNavigationPath } from '../systems/NavigationSystem';
 import { PlayerController2D } from '../systems/PlayerController2D';
 import type { PlayerControllerSnapshot } from '../systems/PlayerController2D';
@@ -79,6 +80,7 @@ export class OfficeScene extends Scene {
         this.playerController.update(delta);
         this.syncHazelSprite();
         this.actionToolbar?.setMuted(this.dialogueBox?.isOpen() ?? false);
+        this.debugPanel?.update(gameState.getSnapshot());
         this.publishDebugState();
     }
 
@@ -107,7 +109,11 @@ export class OfficeScene extends Scene {
     private createDomOverlays() {
         const parent = this.game.canvas.parentElement ?? document.body;
 
-        this.dialogueBox = new DialogueBox(parent);
+        this.dialogueBox = new DialogueBox(parent, {
+            onAdvance: () => this.advanceDialogue(),
+            onChoice: this.chooseDialogueOption,
+            onClose: this.handleDialogueClosed
+        });
         this.actionToolbar = new ActionToolbar(parent, this.handleToolbarAction);
 
         if (DEBUG_HOTSPOTS) {
@@ -247,17 +253,11 @@ export class OfficeScene extends Scene {
 
     private performHotspotInteraction(hotspot: HotspotData, verb = hotspot.defaultVerb) {
         this.hideHoverLabel();
-        const result = hotspot.interactions[verb];
+        const result = resolveCustomInteraction(hotspot.interactions[verb]);
 
-        if (result?.type === 'setFlag') {
-            gameState.setFlag(result.flag);
-            this.debugPanel?.update(gameState.getSnapshot());
-        }
-
-        this.dialogueBox?.show(
+        this.renderDialogueView(
             this.dialogueSystem.resolveInteractionResult(result, hotspot.name)
         );
-        this.actionToolbar?.setMuted(true);
     }
 
     private moveHazelTo(x: number, y: number) {
@@ -315,28 +315,38 @@ export class OfficeScene extends Scene {
                 return;
             }
 
-            this.dialogueBox?.show({
-                speaker: 'Hazel',
-                lines: ['I do not see a useful exit from here. Which is inconvenient, but thematic.']
-            });
+            this.renderDialogueView(
+                this.dialogueSystem.startText('Hazel', [
+                    'I do not see a useful exit from here. Which is inconvenient, but thematic.'
+                ])
+            );
             return;
         }
 
         if (action === 'inventory') {
             const inventory = gameState.getSnapshot().inventory;
-            this.dialogueBox?.show({
-                speaker: 'Hazel',
-                lines: [
+            this.renderDialogueView(
+                this.dialogueSystem.startText('Hazel', [
                     inventory.length > 0
                         ? `Inventory: ${inventory.join(', ')}.`
                         : 'Inventory is empty. My pockets are full of suspicion, but that is not actionable.'
-                ]
-            });
+                ])
+            );
         }
     };
 
     private openMap() {
         this.hideHoverLabel();
+
+        if (!gameState.hasFlag('map_unlocked')) {
+            this.renderDialogueView(
+                this.dialogueSystem.startText('Hazel', [
+                    'The map can wait until the ringing phone stops being the plot.'
+                ])
+            );
+            return;
+        }
+
         this.scene.start('MapScene');
     }
 
@@ -357,22 +367,50 @@ export class OfficeScene extends Scene {
             __CML_DEBUG__?: {
                 scene: string;
                 hazel: PlayerControllerSnapshot;
+                state: ReturnType<typeof gameState.getSnapshot>;
             };
         };
 
         debugWindow.__CML_DEBUG__ = {
             scene: 'office',
-            hazel: this.playerController.getSnapshot()
+            hazel: this.playerController.getSnapshot(),
+            state: gameState.getSnapshot()
         };
     }
 
     private closeDialogue() {
+        this.dialogueSystem.cancel();
         this.dialogueBox?.close();
     }
 
     private advanceDialogue() {
-        this.dialogueBox?.advance();
+        this.renderDialogueView(this.dialogueSystem.advance());
     }
+
+    private chooseDialogueOption = (choiceIndex: number) => {
+        this.renderDialogueView(this.dialogueSystem.choose(choiceIndex));
+    };
+
+    private renderDialogueView(view: DialogueView | undefined) {
+        if (!view) {
+            this.dialogueBox?.close();
+            this.actionToolbar?.setMuted(false);
+            this.debugPanel?.update(gameState.getSnapshot());
+            this.publishDebugState();
+            return;
+        }
+
+        this.dialogueBox?.show(view);
+        this.actionToolbar?.setMuted(true);
+        this.debugPanel?.update(gameState.getSnapshot());
+        this.publishDebugState();
+    }
+
+    private handleDialogueClosed = () => {
+        this.actionToolbar?.setMuted(false);
+        this.debugPanel?.update(gameState.getSnapshot());
+        this.publishDebugState();
+    };
 
     private destroyDomOverlays() {
         this.dialogueBox?.destroy();

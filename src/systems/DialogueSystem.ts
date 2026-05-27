@@ -1,5 +1,6 @@
 import officeDialogueData from '../data/dialogue/office.dialogue.json';
-import type { DialogueData, DialogueNode, InteractionResult } from '../game/types';
+import type { DialogueData, DialogueNode, DialogueView, InteractionResult } from '../game/types';
+import { GameState, gameState } from './GameState';
 
 export interface DialogueDisplayContent {
     speaker: string;
@@ -7,51 +8,197 @@ export interface DialogueDisplayContent {
 }
 
 export class DialogueSystem {
-    constructor(private readonly dialogueData: DialogueData = officeDialogueData as DialogueData) {}
+    private activeNodeId?: string;
+    private lineIndex = 0;
+    private transientContent?: DialogueDisplayContent;
+
+    constructor(
+        private readonly dialogueData: DialogueData = officeDialogueData as DialogueData,
+        private readonly state: GameState = gameState
+    ) {}
 
     getNode(dialogueId: string): DialogueNode | undefined {
         return this.dialogueData[dialogueId];
     }
 
+    startDialogue(dialogueId: string): DialogueView {
+        const node = this.getNode(dialogueId);
+
+        if (!node) {
+            return this.startText('Hazel', [`The dialogue note "${dialogueId}" has gone missing.`]);
+        }
+
+        this.activeNodeId = dialogueId;
+        this.lineIndex = 0;
+        this.transientContent = undefined;
+
+        return this.getActiveView();
+    }
+
+    startText(speaker: string, lines: string[]): DialogueView {
+        this.activeNodeId = undefined;
+        this.lineIndex = 0;
+        this.transientContent = {
+            speaker,
+            lines: lines.length > 0 ? lines : ['...']
+        };
+
+        return this.getActiveView();
+    }
+
+    advance(): DialogueView | undefined {
+        if (!this.activeNodeId && !this.transientContent) {
+            return undefined;
+        }
+
+        const activeLines = this.getActiveLines();
+
+        if (this.lineIndex < activeLines.length - 1) {
+            this.lineIndex += 1;
+            return this.getActiveView();
+        }
+
+        if (this.activeNodeId) {
+            const node = this.getActiveNode();
+
+            if (node.choices?.length) {
+                return this.getActiveView();
+            }
+
+            this.applyEffects(node);
+
+            if (node.next) {
+                return this.startDialogue(node.next);
+            }
+        }
+
+        this.clear();
+        return undefined;
+    }
+
+    choose(choiceIndex: number): DialogueView | undefined {
+        if (!this.activeNodeId) {
+            return this.getActiveViewOrUndefined();
+        }
+
+        const node = this.getActiveNode();
+        const choices = node.choices ?? [];
+        const choice = choices[choiceIndex];
+
+        if (!choice || this.lineIndex !== node.lines.length - 1) {
+            return this.getActiveView();
+        }
+
+        this.applyEffects(node);
+        return this.startDialogue(choice.next);
+    }
+
+    cancel() {
+        this.clear();
+    }
+
     resolveInteractionResult(
         result: InteractionResult | undefined,
         subjectName: string
-    ): DialogueDisplayContent {
+    ): DialogueView {
         if (!result) {
-            return {
-                speaker: 'Hazel',
-                lines: [`I do not have a useful thought about ${subjectName} yet.`]
-            };
+            return this.startText('Hazel', [`I do not have a useful thought about ${subjectName} yet.`]);
         }
 
         if (result.type === 'dialogue') {
-            const node = this.getNode(result.dialogueId);
-
-            return node
-                ? { speaker: node.speaker, lines: node.lines }
-                : {
-                    speaker: 'Hazel',
-                    lines: [`The note for ${subjectName} has gone missing.`]
-                };
+            return this.startDialogue(result.dialogueId);
         }
 
         if (result.type === 'text') {
-            return {
-                speaker: 'Hazel',
-                lines: [result.text]
-            };
+            return this.startText('Hazel', [result.text]);
+        }
+
+        if (result.type === 'addItem') {
+            this.state.addItem(result.itemId);
+            return this.startText('Hazel', [result.text ?? `You acquired ${result.itemId}.`]);
         }
 
         if (result.type === 'setFlag') {
-            return {
-                speaker: 'Hazel',
-                lines: [result.text ?? 'That changes things. Probably.']
-            };
+            this.state.setFlag(result.flag);
+            return this.startText('Hazel', [result.text ?? 'That changes things. Probably.']);
         }
 
+        return this.startText('Hazel', ['That interaction needs a later sprint before it can make sense.']);
+    }
+
+    private getActiveViewOrUndefined(): DialogueView | undefined {
+        return this.activeNodeId || this.transientContent ? this.getActiveView() : undefined;
+    }
+
+    private getActiveView(): DialogueView {
+        const speaker = this.getActiveSpeaker();
+        const lines = this.getActiveLines();
+        const choices = this.getVisibleChoices();
+
         return {
-            speaker: 'Hazel',
-            lines: ['That interaction needs a later sprint before it can make sense.']
+            speaker,
+            line: lines[this.lineIndex] ?? '',
+            lineIndex: this.lineIndex,
+            lineCount: lines.length,
+            choices
         };
+    }
+
+    private getActiveSpeaker() {
+        if (this.activeNodeId) {
+            return this.getActiveNode().speaker;
+        }
+
+        return this.transientContent?.speaker ?? 'Hazel';
+    }
+
+    private getActiveLines() {
+        if (this.activeNodeId) {
+            const lines = this.getActiveNode().lines;
+            return lines.length > 0 ? lines : ['...'];
+        }
+
+        return this.transientContent?.lines ?? ['...'];
+    }
+
+    private getVisibleChoices() {
+        if (!this.activeNodeId) {
+            return [];
+        }
+
+        const node = this.getActiveNode();
+
+        if (!node.choices?.length || this.lineIndex !== node.lines.length - 1) {
+            return [];
+        }
+
+        return node.choices.map((choice, index) => ({
+            text: choice.text,
+            index
+        }));
+    }
+
+    private getActiveNode() {
+        const node = this.activeNodeId ? this.getNode(this.activeNodeId) : undefined;
+
+        if (!node) {
+            throw new Error('No active dialogue node is available.');
+        }
+
+        return node;
+    }
+
+    private applyEffects(node: DialogueNode) {
+        node.effects?.forEach((effect) => {
+            if (effect.type === 'setFlag') {
+                this.state.setFlag(effect.flag);
+            }
+        });
+    }
+
+    private clear() {
+        this.activeNodeId = undefined;
+        this.lineIndex = 0;
+        this.transientContent = undefined;
     }
 }

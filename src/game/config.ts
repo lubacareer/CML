@@ -1,4 +1,5 @@
 import { CANVAS, Scale, Types } from 'phaser';
+import { AssetPreviewScene } from '../scenes/AssetPreviewScene';
 import { BootScene } from '../scenes/BootScene';
 import { MapScene } from '../scenes/MapScene';
 import { OfficeScene } from '../scenes/OfficeScene';
@@ -21,6 +22,7 @@ export const createGameConfig = (parent: string): Types.Core.GameConfig => ({
         PreloadScene,
         OfficeScene,
         StreetScene,
-        MapScene
+        MapScene,
+        AssetPreviewScene
     ]
 });

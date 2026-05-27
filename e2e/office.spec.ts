@@ -7,6 +7,54 @@ const waitForScene = async (page: Page, scene: string) => {
     );
 };
 
+const waitForFlag = async (page: Page, flag: string) => {
+    await page.waitForFunction(
+        (flagId) => (window as any).__CML_DEBUG__?.state?.flags?.[flagId] === true,
+        flag
+    );
+};
+
+const waitForPreview = async (page: Page, previewId: string) => {
+    await waitForScene(page, 'asset-preview');
+    await page.waitForFunction(
+        (expectedPreviewId) => (window as any).__CML_DEBUG__?.previewId === expectedPreviewId,
+        previewId
+    );
+};
+
+const answerPhoneAndUnlockMap = async (page: Page) => {
+    await page.getByTestId('action-use').click();
+    await page.mouse.click(430, 410);
+
+    const dialogueBox = page.getByTestId('dialogue-box');
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('Detective Hazel? I need help.');
+
+    await dialogueBox.click();
+    await expect(dialogueBox).toContainText('Something terrible has happened.');
+    await dialogueBox.click();
+    await expect(dialogueBox).toContainText(
+        'My argument disappeared halfway through dinner, and now my family agrees with everyone.'
+    );
+    await dialogueBox.click();
+    await expect(dialogueBox).toContainText('Even the cat.');
+
+    await page.getByTestId('dialogue-choice-1').click();
+    await expect(dialogueBox).toContainText('The cat had motive, opportunity, and a tiny bow tie.');
+
+    await dialogueBox.click();
+    await expect(dialogueBox).toContainText('I know what I saw.');
+    await dialogueBox.click();
+    await expect(dialogueBox).toContainText('Fine. I will investigate the disappearance of logic.');
+    await dialogueBox.click();
+    await expect(dialogueBox).toContainText('But if this turns out to be a metaphor, I charge double.');
+    await dialogueBox.click();
+
+    await expect(dialogueBox).toBeHidden();
+    await waitForFlag(page, 'case001_started');
+    await waitForFlag(page, 'map_unlocked');
+};
+
 type TrailPoint = {
     x: number;
     y: number;
@@ -226,6 +274,7 @@ test('clicking the street bicycle does not place Hazel on the bicycle', async ({
     await page.getByTestId('action-exit').click();
     await waitForScene(page, 'street');
 
+    await page.getByTestId('action-walk').click();
     await page.mouse.click(900, 585);
     await page.waitForFunction(() => (window as any).__CML_DEBUG__.hazel.state === 'walking');
     await page.waitForFunction(() => (window as any).__CML_DEBUG__.hazel.state === 'idle');
@@ -234,6 +283,36 @@ test('clicking the street bicycle does not place Hazel on the bicycle', async ({
     const isOnBicycle = hazel.x >= 745 && hazel.x <= 1040 && hazel.y >= 455 && hazel.y <= 625;
 
     expect(isOnBicycle).toBe(false);
+});
+
+test('street scene preserves case state and exposes reconciled hotspots', async ({ page }) => {
+    await page.goto('/');
+    await waitForScene(page, 'office');
+    await answerPhoneAndUnlockMap(page);
+
+    await page.getByTestId('action-exit').click();
+    await waitForScene(page, 'street');
+
+    await expect.poll(
+        async () => page.evaluate(() => (window as any).__CML_DEBUG__?.state?.flags?.case001_started)
+    ).toBe(true);
+    await expect.poll(
+        async () => page.evaluate(() => (window as any).__CML_DEBUG__?.state?.flags?.map_unlocked)
+    ).toBe(true);
+
+    await page.mouse.click(500, 145);
+
+    const dialogueBox = page.getByTestId('dialogue-box');
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('P. Hazel Detective Agency.');
+
+    await page.keyboard.press('Escape');
+    await expect(dialogueBox).toBeHidden();
+
+    await page.mouse.click(340, 600);
+
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('The footprints head in three directions at once.');
 });
 
 test('clicking the office door moves to the street scene', async ({ page }) => {
@@ -254,23 +333,58 @@ test('toolbar exit button moves from office to street', async ({ page }) => {
     await waitForScene(page, 'street');
 });
 
-test('map opens from the office and can route to the street', async ({ page }) => {
+test('map access is gated before the first case starts', async ({ page }) => {
     await page.goto('/');
     await waitForScene(page, 'office');
+
+    await page.keyboard.press('M');
+
+    const dialogueBox = page.getByTestId('dialogue-box');
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('The map can wait until the ringing phone stops being the plot.');
+    await waitForScene(page, 'office');
+
+    await page.keyboard.press('Escape');
+    await expect(dialogueBox).toBeHidden();
+
+    await page.getByTestId('action-map').click();
+
+    await expect(dialogueBox).toBeVisible();
+    await expect(dialogueBox).toContainText('The map can wait until the ringing phone stops being the plot.');
+    await waitForScene(page, 'office');
+});
+
+test('answering the phone starts the case and unlocks the map', async ({ page }) => {
+    await page.goto('/');
+    await waitForScene(page, 'office');
+
+    await answerPhoneAndUnlockMap(page);
+
+    await page.keyboard.press('M');
+
+    await waitForScene(page, 'map');
+});
+
+test('map locations open generated asset previews after the case starts', async ({ page }) => {
+    await page.goto('/');
+    await waitForScene(page, 'office');
+    await answerPhoneAndUnlockMap(page);
 
     await page.keyboard.press('M');
     await waitForScene(page, 'map');
 
     await page.mouse.click(660, 210);
+    await waitForPreview(page, 'cafe');
 
-    await waitForScene(page, 'street');
-});
-
-test('toolbar map button opens the map', async ({ page }) => {
-    await page.goto('/');
-    await waitForScene(page, 'office');
-
-    await page.getByTestId('action-map').click();
-
+    await page.keyboard.press('Escape');
     await waitForScene(page, 'map');
+
+    await page.mouse.click(1000, 225);
+    await waitForPreview(page, 'police-kiosk');
+
+    await page.keyboard.press('Escape');
+    await waitForScene(page, 'map');
+
+    await page.mouse.click(560, 560);
+    await waitForPreview(page, 'alley');
 });

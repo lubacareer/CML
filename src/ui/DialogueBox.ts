@@ -1,14 +1,23 @@
-import type { DialogueDisplayContent } from '../systems/DialogueSystem';
+import type { DialogueView } from '../game/types';
+
+interface DialogueBoxCallbacks {
+    onAdvance: () => void;
+    onChoice: (choiceIndex: number) => void;
+    onClose: () => void;
+}
 
 export class DialogueBox {
     private readonly root: HTMLElement;
     private readonly speakerElement: HTMLElement;
     private readonly lineElement: HTMLElement;
+    private readonly choicesElement: HTMLElement;
     private readonly progressElement: HTMLElement;
-    private content?: DialogueDisplayContent;
-    private lineIndex = 0;
+    private view?: DialogueView;
 
-    constructor(parent: HTMLElement) {
+    constructor(
+        parent: HTMLElement,
+        private readonly callbacks: DialogueBoxCallbacks
+    ) {
         this.root = document.createElement('section');
         this.root.className = 'dialogue-box';
         this.root.setAttribute('data-testid', 'dialogue-box');
@@ -21,38 +30,36 @@ export class DialogueBox {
         this.lineElement = document.createElement('p');
         this.lineElement.className = 'dialogue-box__line';
 
+        this.choicesElement = document.createElement('div');
+        this.choicesElement.className = 'dialogue-box__choices';
+
         this.progressElement = document.createElement('div');
         this.progressElement.className = 'dialogue-box__progress';
 
-        this.root.append(this.speakerElement, this.lineElement, this.progressElement);
+        this.root.append(this.speakerElement, this.lineElement, this.choicesElement, this.progressElement);
         this.root.addEventListener('click', this.handleClick);
-        document.addEventListener('keydown', this.handleKeyDown);
         parent.append(this.root);
     }
 
-    show(content: DialogueDisplayContent) {
-        this.content = content;
-        this.lineIndex = 0;
+    show(view: DialogueView) {
+        this.view = view;
         this.root.hidden = false;
         this.render();
     }
 
     advance() {
-        if (!this.content || this.root.hidden) {
+        if (!this.view || this.root.hidden) {
             return;
         }
 
-        if (this.lineIndex < this.content.lines.length - 1) {
-            this.lineIndex += 1;
-            this.render();
-            return;
-        }
-
-        this.close();
+        this.callbacks.onAdvance();
     }
 
     close() {
         this.root.hidden = true;
+        this.view = undefined;
+        this.clearChoices();
+        this.callbacks.onClose();
     }
 
     isOpen() {
@@ -61,33 +68,43 @@ export class DialogueBox {
 
     destroy() {
         this.root.removeEventListener('click', this.handleClick);
-        document.removeEventListener('keydown', this.handleKeyDown);
         this.root.remove();
     }
 
     private render() {
-        if (!this.content) {
+        if (!this.view) {
             return;
         }
 
-        this.speakerElement.textContent = this.content.speaker;
-        this.lineElement.textContent = this.content.lines[this.lineIndex] ?? '';
-        this.progressElement.textContent = `${this.lineIndex + 1}/${this.content.lines.length}`;
+        this.speakerElement.textContent = this.view.speaker;
+        this.lineElement.textContent = this.view.line;
+        this.progressElement.textContent = `${this.view.lineIndex + 1}/${this.view.lineCount}`;
+        this.renderChoices();
+    }
+
+    private renderChoices() {
+        this.clearChoices();
+
+        this.view?.choices.forEach((choice) => {
+            const button = document.createElement('button');
+            button.className = 'dialogue-box__choice';
+            button.type = 'button';
+            button.textContent = choice.text;
+            button.setAttribute('data-testid', `dialogue-choice-${choice.index}`);
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+                this.callbacks.onChoice(choice.index);
+            });
+
+            this.choicesElement.append(button);
+        });
+    }
+
+    private clearChoices() {
+        this.choicesElement.replaceChildren();
     }
 
     private handleClick = () => {
         this.advance();
-    };
-
-    private handleKeyDown = (event: KeyboardEvent) => {
-        if (event.key === 'Escape') {
-            this.close();
-            return;
-        }
-
-        if (event.code === 'Space' && this.isOpen()) {
-            event.preventDefault();
-            this.advance();
-        }
     };
 }

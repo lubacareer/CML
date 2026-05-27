@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Reconciled Sprint 4 street content with agency sign, cafe, suspicious footprints, newspaper box, manhole cover, bicycle, and oddities shop hotspots.
+- Added scene-state and browser coverage for preserving case flags through office-to-street transitions.
+- Added Sprint 3 branching dialogue progression for the first client phone call.
+- Added the `answer_phone` custom action, which starts `case001_missing_logic` and sets `case001_started` plus `map_unlocked`.
+- Gated map access behind `map_unlocked` while keeping the existing office, street, and map preview flow.
+- Embedded cafe, police kiosk, alley, NPC, and invalid alibi runtime assets as preview-only map destinations for later sprints.
+- Added dialogue branching/effects, custom action, asset, and phone-call map unlock coverage.
 - Added AI-generated source strips for Hazel front/back movement and point-and-click toolbar icons.
 - Added deterministic builders for `hazel-4dir.png` and runtime toolbar icon PNGs.
 - Added four-direction Hazel idle/walk animation support and dominant-axis facing updates.
