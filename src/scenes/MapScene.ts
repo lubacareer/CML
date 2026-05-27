@@ -277,6 +277,7 @@ export class MapScene extends Scene {
     }
 
     private handleDialogueClosed = () => {
+        this.dialogueSystem.cancel();
         this.debugPanel?.update(gameState.getSnapshot());
         this.publishDebugState();
     };

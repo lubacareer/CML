@@ -89,7 +89,8 @@ body {
 .dialogue-box__choice:focus-visible {
     border-color: rgba(243, 193, 75, 0.95);
     background: rgba(70, 57, 36, 0.9);
-    outline: none;
+    outline: 2px solid #f3c14b;
+    outline-offset: 2px;
 }
 
 .dialogue-box__progress {
