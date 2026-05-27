@@ -50,6 +50,7 @@ export interface HotspotData {
     height: number;
     defaultVerb: InteractionVerb;
     interactions: Partial<Record<InteractionVerb, InteractionResult>>;
+    itemInteractions?: Partial<Record<string, InteractionResult>>;
     requiredFlag?: string;
     hiddenWhenFlag?: string;
 }
@@ -69,6 +70,25 @@ export interface GameStateSnapshot {
     flags: Record<string, boolean>;
     inventory: string[];
     activeCaseId: string;
+    selectedItemId?: string;
+}
+
+export interface InventoryItemData {
+    id: string;
+    displayName: string;
+    description: string;
+    iconKey: string;
+    allowDuplicates?: boolean;
+}
+
+export interface InventoryItemView extends InventoryItemData {
+    quantity: number;
+    selected: boolean;
+}
+
+export interface InventoryView {
+    items: InventoryItemView[];
+    selectedItemId?: string;
 }
 
 export interface DialogueChoice {

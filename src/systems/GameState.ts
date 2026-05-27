@@ -7,12 +7,14 @@ export class GameState {
     private flags: Record<string, boolean>;
     private inventory: string[];
     private activeCaseId: string;
+    private selectedItemId?: string;
 
     constructor(snapshot?: Partial<GameStateSnapshot>) {
         this.currentScene = snapshot?.currentScene ?? 'office';
         this.flags = { ...(snapshot?.flags ?? {}) };
         this.inventory = [...(snapshot?.inventory ?? [])];
         this.activeCaseId = snapshot?.activeCaseId ?? DEFAULT_ACTIVE_CASE_ID;
+        this.selectedItemId = snapshot?.selectedItemId;
     }
 
     setCurrentScene(sceneId: SceneId) {
@@ -27,10 +29,38 @@ export class GameState {
         return this.flags[flag] === true;
     }
 
-    addItem(itemId: string) {
-        if (!this.inventory.includes(itemId)) {
+    addItem(itemId: string, allowDuplicates = false) {
+        if (allowDuplicates || !this.inventory.includes(itemId)) {
             this.inventory.push(itemId);
+            return true;
         }
+
+        return false;
+    }
+
+    hasItem(itemId: string) {
+        return this.inventory.includes(itemId);
+    }
+
+    getInventory() {
+        return [...this.inventory];
+    }
+
+    selectItem(itemId: string) {
+        if (!this.hasItem(itemId)) {
+            return false;
+        }
+
+        this.selectedItemId = itemId;
+        return true;
+    }
+
+    clearSelectedItem() {
+        this.selectedItemId = undefined;
+    }
+
+    getSelectedItemId() {
+        return this.selectedItemId;
     }
 
     getFlags() {
@@ -42,7 +72,8 @@ export class GameState {
             currentScene: this.currentScene,
             flags: this.getFlags(),
             inventory: [...this.inventory],
-            activeCaseId: this.activeCaseId
+            activeCaseId: this.activeCaseId,
+            selectedItemId: this.selectedItemId
         };
     }
 }
