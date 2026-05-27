@@ -5,7 +5,9 @@ const GRID_COLUMNS = 4;
 
 export class InventoryBar {
     private readonly root: HTMLElement;
+    private readonly header: HTMLElement;
     private readonly title: HTMLElement;
+    private readonly closeButton: HTMLButtonElement;
     private readonly itemsRoot: HTMLElement;
     private readonly status: HTMLElement;
     private view: InventoryView = { items: [] };
@@ -20,9 +22,23 @@ export class InventoryBar {
         this.root.setAttribute('aria-label', 'Inventory');
         this.root.hidden = true;
 
+        this.header = document.createElement('header');
+        this.header.className = 'inventory-bar__header';
+
         this.title = document.createElement('h2');
         this.title.className = 'inventory-bar__title';
         this.title.textContent = "Hazel's Suitcase";
+
+        this.closeButton = document.createElement('button');
+        this.closeButton.className = 'inventory-bar__close';
+        this.closeButton.type = 'button';
+        this.closeButton.title = 'Close inventory';
+        this.closeButton.setAttribute('aria-label', 'Close inventory');
+        this.closeButton.setAttribute('data-testid', 'inventory-close');
+        this.closeButton.textContent = 'x';
+        this.closeButton.addEventListener('click', () => this.setOpen(false));
+
+        this.header.append(this.title, this.closeButton);
 
         this.itemsRoot = document.createElement('div');
         this.itemsRoot.className = 'inventory-bar__items';
@@ -31,7 +47,7 @@ export class InventoryBar {
         this.status = document.createElement('p');
         this.status.className = 'inventory-bar__status';
 
-        this.root.append(this.title, this.itemsRoot, this.status);
+        this.root.append(this.header, this.itemsRoot, this.status);
         parent.append(this.root);
     }
 

@@ -34,10 +34,11 @@ The original generated PNGs are preserved in the project root. AI-generated sour
 ## Controls
 
 - Left click: walk / interact
-- Toolbar icons: choose walk/look/use/talk, exit, map, or inventory
+- Toolbar icons: choose walk/look/use/talk, exit, map, inventory, or fullscreen
 - Space or click: advance dialogue
 - Esc: close dialogue/menu
 - H: toggle hotspot debug rectangles in development
+- F: toggle fullscreen
 - I: inventory
 - M: open the map after the first case starts
 
@@ -47,7 +48,7 @@ Sprint 7 boots directly into P. Hazel's office. You can click valid floor space 
 
 Use the phone to answer the first client call. The branching conversation starts `case001_missing_logic`, sets `case001_started`, and unlocks the map. Before that call, `M` and the toolbar map icon show Hazel's locked-map response instead of leaving the current scene.
 
-Use the coffee machine with the Use action to pick up `cold_coffee`. Press `I` or the toolbar inventory icon to open Hazel's suitcase inventory, select Cold Coffee from the icon grid, then use it on the locked drawer for a specific failure response. Other wrong item uses return a generic Hazel fallback line.
+Use the coffee machine with the Use action to pick up `cold_coffee`. Press `I` or the toolbar inventory icon to open Hazel's suitcase inventory, close it with the `x` button when needed, select Cold Coffee from the icon grid, then use it on the locked drawer for a specific failure response. Other wrong item uses return a generic Hazel fallback line.
 
 Click the office door or toolbar exit icon to reach the street scene. Inspect the suspicious footprints and Daisy's Cafe exterior to surface the Overly Rational Pigeon. Use Cold Coffee on the pigeon to receive `invalid_alibi`, then select it in the suitcase and use it on the police kiosk from the map to unlock the narrow alley preview.
 

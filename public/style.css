@@ -209,12 +209,45 @@ body {
 }
 
 .inventory-bar__title {
-    margin: 0 0 10px;
+    margin: 0;
     color: #f7efe2;
     font-family: Georgia, "Times New Roman", serif;
     font-size: 17px;
     font-weight: 700;
     letter-spacing: 0;
+}
+
+.inventory-bar__header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.inventory-bar__close {
+    display: grid;
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    padding: 0;
+    border: 1px solid rgba(243, 193, 75, 0.58);
+    border-radius: 999px;
+    background: rgba(21, 24, 32, 0.72);
+    color: #f7efe2;
+    cursor: pointer;
+    font: 700 16px/1 Arial, Helvetica, sans-serif;
+}
+
+.inventory-bar__close:hover,
+.inventory-bar__close:focus-visible {
+    border-color: rgba(243, 193, 75, 0.95);
+    background: rgba(70, 57, 36, 0.95);
+    outline: 2px solid #f3c14b;
+    outline-offset: 2px;
 }
 
 .inventory-bar__items {
@@ -353,16 +386,18 @@ body {
         bottom: 8px;
         left: 8px;
         justify-content: center;
+        gap: 4px;
+        padding: 5px;
     }
 
     .action-toolbar__button {
-        width: 38px;
-        height: 38px;
+        width: clamp(31px, 10vw, 38px);
+        height: clamp(31px, 10vw, 38px);
     }
 
     .action-toolbar__icon {
-        width: 31px;
-        height: 31px;
+        width: 78%;
+        height: 78%;
     }
 
     .inventory-bar {

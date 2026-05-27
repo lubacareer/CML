@@ -5,6 +5,7 @@ import { DEBUG_HOTSPOTS, GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
 import { HAZEL_DISPLAY_SCALE, HAZEL_TEXTURE_KEY } from '../game/hazelAnimationConfig';
 import type { DialogueView, GameSceneData, HotspotData, InteractionVerb, SceneExitData, SceneId } from '../game/types';
 import { DialogueSystem } from '../systems/DialogueSystem';
+import { toggleGameFullscreen } from '../systems/FullscreenSystem';
 import { gameState } from '../systems/GameState';
 import { findHotspotAtPoint, getVisibleHotspots } from '../systems/HotspotSystem';
 import { InventorySystem } from '../systems/InventorySystem';
@@ -59,6 +60,9 @@ export class StreetScene extends Scene {
         this.input.on('pointermove', this.handlePointerMove, this);
         this.input.keyboard?.on('keydown-ESC', this.closeDialogue, this);
         this.input.keyboard?.on('keydown-SPACE', this.advanceDialogue, this);
+        this.input.keyboard?.on('keydown-F', () => {
+            void this.toggleFullscreen();
+        });
         this.input.keyboard?.on('keydown-M', this.openMap, this);
         window.addEventListener('keydown', this.handleInventoryKeyDown);
 
@@ -334,6 +338,11 @@ export class StreetScene extends Scene {
 
         if (action === 'inventory') {
             this.toggleInventory();
+            return;
+        }
+
+        if (action === 'fullscreen') {
+            void this.toggleFullscreen();
         }
     };
 
@@ -377,6 +386,30 @@ export class StreetScene extends Scene {
         this.scene.start('MapScene');
     }
 
+    private async toggleFullscreen() {
+        if (this.dialogueBox?.isOpen()) {
+            return;
+        }
+
+        try {
+            const changed = await toggleGameFullscreen();
+
+            if (!changed) {
+                this.renderDialogueView(
+                    this.dialogueSystem.startText('Hazel', [
+                        'Fullscreen is unavailable in this browser window.'
+                    ])
+                );
+            }
+        } catch {
+            this.renderDialogueView(
+                this.dialogueSystem.startText('Hazel', [
+                    'Fullscreen refused to cooperate. Very on brand.'
+                ])
+            );
+        }
+    }
+
     private getSceneKey(sceneId: SceneId) {
         if (sceneId === 'office') {
             return 'OfficeScene';
@@ -406,6 +439,11 @@ export class StreetScene extends Scene {
     }
 
     private closeDialogue() {
+        if (!this.dialogueBox?.isOpen() && this.inventoryBar?.isOpen()) {
+            this.inventoryBar.setOpen(false);
+            return;
+        }
+
         this.dialogueSystem.cancel();
         this.dialogueBox?.close();
     }

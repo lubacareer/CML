@@ -10,7 +10,7 @@ import {
     HAZEL_SHEET_ROWS
 } from '../game/hazelAnimationConfig';
 
-const uiIconNames = ['walk', 'look', 'use', 'talk', 'exit', 'map', 'inventory'];
+const uiIconNames = ['walk', 'look', 'use', 'talk', 'exit', 'map', 'inventory', 'fullscreen'];
 const newBackgroundAssetNames = ['cafe', 'police-kiosk', 'alley'];
 const transparentRuntimeAssets = [
     'public/assets/characters/npcs/cafe_owner.png',

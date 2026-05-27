@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added a fullscreen toolbar option and keyboard shortcut for the game container.
+- Added an `x` close button to Hazel's suitcase inventory panel.
 - Added Sprint 7 puzzle progression from suspicious footprints and cafe exterior investigation through pigeon exchange, invalid alibi filing, and alley unlock.
 - Added a suitcase-style inventory panel with a 2D icon grid and runtime item art for Cold Coffee and Invalid Alibi.
 - Added unit and browser coverage for the first complete puzzle chain.

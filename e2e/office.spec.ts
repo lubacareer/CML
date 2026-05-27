@@ -332,6 +332,40 @@ test('toolbar exit button moves from office to street', async ({ page }) => {
     await waitForScene(page, 'street');
 });
 
+test('toolbar fullscreen button toggles the game container fullscreen state', async ({ page }) => {
+    await page.addInitScript(() => {
+        let fullscreenElement: Element | null = null;
+
+        Object.defineProperty(document, 'fullscreenEnabled', {
+            configurable: true,
+            get: () => true
+        });
+        Object.defineProperty(document, 'fullscreenElement', {
+            configurable: true,
+            get: () => fullscreenElement
+        });
+        HTMLElement.prototype.requestFullscreen = async function requestFullscreen() {
+            fullscreenElement = this;
+        };
+        document.exitFullscreen = async () => {
+            fullscreenElement = null;
+        };
+    });
+
+    await page.goto('/');
+    await waitForScene(page, 'office');
+
+    await page.getByTestId('action-fullscreen').click();
+    await expect.poll(
+        async () => page.evaluate(() => document.fullscreenElement?.id)
+    ).toBe('game-container');
+
+    await page.getByTestId('action-fullscreen').click();
+    await expect.poll(
+        async () => page.evaluate(() => document.fullscreenElement)
+    ).toBeNull();
+});
+
 test('map access is gated before the first case starts', async ({ page }) => {
     await page.goto('/');
     await waitForScene(page, 'office');
@@ -391,6 +425,12 @@ test('picks up cold coffee and uses it from the inventory', async ({ page }) => 
         'src',
         /assets\/items\/cold-coffee\.png/
     );
+
+    await page.getByTestId('inventory-close').click();
+    await expect(inventoryBar).toBeHidden();
+
+    await page.keyboard.press('I');
+    await expect(inventoryBar).toBeVisible();
 
     await page.getByTestId('inventory-item-cold_coffee').click();
 
