@@ -7,7 +7,8 @@ Initial generated assets are preserved in the root folder and copied into the ru
 - `GeneralMap.png` -> `public/assets/backgrounds/map.png`
 - `Hazel.png` -> `public/assets/characters/hazel_spritesheet.png`
 - `Hazel2.png` + `source-assets/characters/hazel-direction-raw.png` -> `public/assets/characters/hazel-4dir.png`
-- `source-assets/ui/point-click-icons-raw.png` -> `public/assets/ui/icons/*.png`
+- `source-assets/ui/point-click-icons-raw.png` -> `public/assets/ui/icons/walk.png`, `look.png`, `use.png`, `talk.png`, `exit.png`, `map.png`, and `inventory.png`
+- `public/assets/ui/icons/fullscreen.png` and `public/assets/ui/icons/save.png` are compact runtime UI icons for later toolbar controls.
 - `source-assets/backgrounds/cafe-interior.png` -> `public/assets/backgrounds/cafe.png`
 - `source-assets/backgrounds/police-kiosk.png` -> `public/assets/backgrounds/police-kiosk.png`
 - `source-assets/backgrounds/narrow-alley.png` -> `public/assets/backgrounds/alley.png`

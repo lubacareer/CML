@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added a Sprint 8 title screen with Start Game and save-aware Continue controls.
+- Added explicit `localStorage` save/load through the toolbar Save action and `S` shortcut.
+- Added skippable typewriter dialogue with reduced-motion instant rendering.
+- Added short scene fade transitions, dev hover-highlight polish, and placeholder WebAudio UI cues.
+- Added unit and browser coverage for save restoration, title flow, typewriter skipping, and continued scene routing.
 - Added a fullscreen toolbar option and keyboard shortcut for the game container.
 - Added an `x` close button to Hazel's suitcase inventory panel.
 - Added Sprint 7 puzzle progression from suspicious footprints and cafe exterior investigation through pigeon exchange, invalid alibi filing, and alley unlock.

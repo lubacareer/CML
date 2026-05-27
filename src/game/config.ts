@@ -5,6 +5,7 @@ import { MapScene } from '../scenes/MapScene';
 import { OfficeScene } from '../scenes/OfficeScene';
 import { PreloadScene } from '../scenes/PreloadScene';
 import { StreetScene } from '../scenes/StreetScene';
+import { TitleScene } from '../scenes/TitleScene';
 import { GAME_HEIGHT, GAME_WIDTH } from './constants';
 
 export const createGameConfig = (parent: string): Types.Core.GameConfig => ({
@@ -20,6 +21,7 @@ export const createGameConfig = (parent: string): Types.Core.GameConfig => ({
     scene: [
         BootScene,
         PreloadScene,
+        TitleScene,
         OfficeScene,
         StreetScene,
         MapScene,

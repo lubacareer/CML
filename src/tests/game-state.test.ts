@@ -33,4 +33,29 @@ describe('GameState', () => {
             selectedItemId: 'cold_coffee'
         });
     });
+
+    it('resets and restores a full snapshot', () => {
+        const state = new GameState();
+
+        state.setFlag('case001_started');
+        state.addItem('cold_coffee');
+        state.selectItem('cold_coffee');
+        state.setCurrentScene('street');
+
+        const snapshot = state.getSnapshot();
+
+        state.reset();
+
+        expect(state.getSnapshot()).toEqual({
+            currentScene: 'office',
+            flags: {},
+            inventory: [],
+            activeCaseId: 'case001_missing_logic',
+            selectedItemId: undefined
+        });
+
+        state.restore(snapshot);
+
+        expect(state.getSnapshot()).toEqual(snapshot);
+    });
 });

@@ -69,3 +69,12 @@
 - Let selected inventory items persist into the map scene so `invalid_alibi` can be used on the police kiosk without adding a second map-specific toolbar.
 - Render Hazel's inventory as a DOM suitcase grid so item buttons stay accessible and Playwright-addressable while the Phaser playfield remains clear.
 - Add a compact generated Cold Coffee item icon only for the missing inventory-grid runtime art; leave the existing generated asset batch unchanged.
+
+## Sprint 8
+
+- Route `PreloadScene` into a DOM-backed title screen so Start Game and Continue remain accessible and easy to test.
+- Store explicit saves as versioned `GameStateSnapshot` records in `localStorage` under `cml.save.v1`; corrupted, missing, or version-mismatched saves are ignored without throwing.
+- Limit resume destinations to office, street, and map so preview-only scenes do not become save restore targets.
+- Keep scene fades, audio cues, and save persistence in small helper systems while Phaser scenes only route input and render feedback.
+- Use a skippable dialogue typewriter effect that respects reduced-motion preferences and does not expose choices before the active line finishes.
+- Keep hover labels as the standard player-facing affordance, with subtle debug-only hotspot/location highlights for development.

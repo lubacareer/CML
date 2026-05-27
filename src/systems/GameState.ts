@@ -2,6 +2,13 @@ import type { GameStateSnapshot, SceneId } from '../game/types';
 
 const DEFAULT_ACTIVE_CASE_ID = 'case001_missing_logic';
 
+const createDefaultSnapshot = (): GameStateSnapshot => ({
+    currentScene: 'office',
+    flags: {},
+    inventory: [],
+    activeCaseId: DEFAULT_ACTIVE_CASE_ID
+});
+
 export class GameState {
     private currentScene: SceneId;
     private flags: Record<string, boolean>;
@@ -10,10 +17,12 @@ export class GameState {
     private selectedItemId?: string;
 
     constructor(snapshot?: Partial<GameStateSnapshot>) {
-        this.currentScene = snapshot?.currentScene ?? 'office';
-        this.flags = { ...(snapshot?.flags ?? {}) };
-        this.inventory = [...(snapshot?.inventory ?? [])];
-        this.activeCaseId = snapshot?.activeCaseId ?? DEFAULT_ACTIVE_CASE_ID;
+        const defaults = createDefaultSnapshot();
+
+        this.currentScene = snapshot?.currentScene ?? defaults.currentScene;
+        this.flags = { ...(snapshot?.flags ?? defaults.flags) };
+        this.inventory = [...(snapshot?.inventory ?? defaults.inventory)];
+        this.activeCaseId = snapshot?.activeCaseId ?? defaults.activeCaseId;
         this.selectedItemId = snapshot?.selectedItemId;
     }
 
@@ -65,6 +74,18 @@ export class GameState {
 
     getFlags() {
         return { ...this.flags };
+    }
+
+    reset() {
+        this.restore(createDefaultSnapshot());
+    }
+
+    restore(snapshot: GameStateSnapshot) {
+        this.currentScene = snapshot.currentScene;
+        this.flags = { ...snapshot.flags };
+        this.inventory = [...snapshot.inventory];
+        this.activeCaseId = snapshot.activeCaseId;
+        this.selectedItemId = snapshot.selectedItemId;
     }
 
     getSnapshot(): GameStateSnapshot {

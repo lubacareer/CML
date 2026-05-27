@@ -28,6 +28,6 @@ export class PreloadScene extends Scene {
     }
 
     create() {
-        this.scene.start('OfficeScene');
+        this.scene.start('TitleScene');
     }
 }

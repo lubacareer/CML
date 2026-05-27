@@ -1,6 +1,6 @@
 import type { InteractionVerb } from '../game/types';
 
-export type ToolbarAction = 'walk' | 'look' | 'use' | 'talk' | 'exit' | 'map' | 'inventory' | 'fullscreen';
+export type ToolbarAction = 'walk' | 'look' | 'use' | 'talk' | 'exit' | 'map' | 'save' | 'inventory' | 'fullscreen';
 export type ToolbarInteractionVerb = Extract<InteractionVerb, ToolbarAction>;
 
 const selectableActions = new Set<ToolbarAction>(['walk', 'look', 'use', 'talk']);
@@ -12,6 +12,7 @@ const actionLabels: Record<ToolbarAction, string> = {
     talk: 'Talk',
     exit: 'Exit',
     map: 'Map',
+    save: 'Save',
     inventory: 'Inventory',
     fullscreen: 'Fullscreen'
 };

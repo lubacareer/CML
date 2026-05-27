@@ -3,17 +3,22 @@ import type { GameObjects, Input } from 'phaser';
 import { mapLocations } from '../data/mapLocations';
 import { DEBUG_HOTSPOTS, GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
 import type { DialogueView, SceneId } from '../game/types';
+import { playAudioCue } from '../systems/AudioCueSystem';
 import { DialogueSystem } from '../systems/DialogueSystem';
 import { gameState } from '../systems/GameState';
 import { findMapLocationAtPoint, resolveMapLocation } from '../systems/MapNavigationSystem';
+import { SaveGameSystem } from '../systems/SaveGameSystem';
+import { fadeInScene, transitionToScene } from '../systems/SceneTransitionSystem';
 import { DebugPanel } from '../ui/DebugPanel';
 import { DialogueBox } from '../ui/DialogueBox';
 
 export class MapScene extends Scene {
     private dialogueSystem = new DialogueSystem();
+    private saveGameSystem = new SaveGameSystem();
     private dialogueBox?: DialogueBox;
     private debugPanel?: DebugPanel;
     private hoverLabel?: GameObjects.Text;
+    private hoverHighlightGraphics?: GameObjects.Graphics;
 
     constructor() {
         super('MapScene');
@@ -33,9 +38,11 @@ export class MapScene extends Scene {
         this.input.keyboard?.on('keydown-ESC', this.returnToOffice, this);
         this.input.keyboard?.on('keydown-M', this.returnToOffice, this);
         this.input.keyboard?.on('keydown-SPACE', this.advanceDialogue, this);
+        this.input.keyboard?.on('keydown-S', this.saveGame, this);
 
         this.events.once('shutdown', this.destroyDomOverlays, this);
         this.events.once('destroy', this.destroyDomOverlays, this);
+        fadeInScene(this);
         this.publishDebugState();
     }
 
@@ -65,6 +72,10 @@ export class MapScene extends Scene {
                 y: 4
             }
         }).setDepth(30).setVisible(false);
+
+        if (DEBUG_HOTSPOTS) {
+            this.hoverHighlightGraphics = this.add.graphics().setDepth(19);
+        }
     }
 
     private handlePointerDown(pointer: Input.Pointer) {
@@ -86,12 +97,12 @@ export class MapScene extends Scene {
         );
 
         if (result.type === 'changeScene') {
-            this.scene.start(this.getSceneKey(result.sceneId));
+            transitionToScene(this, this.getSceneKey(result.sceneId));
             return;
         }
 
         if (result.type === 'preview') {
-            this.scene.start('AssetPreviewScene', {
+            transitionToScene(this, 'AssetPreviewScene', {
                 previewId: result.previewId
             });
             return;
@@ -126,6 +137,7 @@ export class MapScene extends Scene {
         }
 
         this.game.canvas.style.cursor = 'pointer';
+        this.showHoverHighlight(location);
         this.positionHoverLabel(pointer, location.name);
     }
 
@@ -145,7 +157,20 @@ export class MapScene extends Scene {
 
     private hideHoverLabel() {
         this.game.canvas.style.cursor = 'default';
+        this.hoverHighlightGraphics?.clear();
         this.hoverLabel?.setVisible(false);
+    }
+
+    private showHoverHighlight(bounds: { x: number; y: number; width: number; height: number }) {
+        if (!DEBUG_HOTSPOTS) {
+            return;
+        }
+
+        this.hoverHighlightGraphics?.clear();
+        this.hoverHighlightGraphics?.lineStyle(2, 0xf3c14b, 0.9);
+        this.hoverHighlightGraphics?.fillStyle(0xf3c14b, 0.1);
+        this.hoverHighlightGraphics?.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        this.hoverHighlightGraphics?.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
     }
 
     private returnToOffice() {
@@ -155,10 +180,14 @@ export class MapScene extends Scene {
             return;
         }
 
-        this.scene.start('OfficeScene');
+        transitionToScene(this, 'OfficeScene');
     }
 
     private advanceDialogue() {
+        if (this.dialogueBox?.completeLineIfTyping()) {
+            return;
+        }
+
         this.renderDialogueView(this.dialogueSystem.advance());
     }
 
@@ -189,6 +218,23 @@ export class MapScene extends Scene {
         }
 
         return 'OfficeScene';
+    }
+
+    private saveGame() {
+        if (this.dialogueBox?.isOpen()) {
+            return;
+        }
+
+        const saved = this.saveGameSystem.save(gameState.getSnapshot());
+
+        playAudioCue('save');
+        this.renderDialogueView(
+            this.dialogueSystem.startText('Hazel', [
+                saved
+                    ? 'Progress saved. The map promises to remember where it put itself.'
+                    : 'The save file refused to cooperate. Suspicious.'
+            ])
+        );
     }
 
     private publishDebugState() {
