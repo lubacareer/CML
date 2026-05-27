@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Added Sprint 9 demo packaging docs for game design, sprint status, testing, static deployment, and known limitations.
+- Added a production preview script for checking the built `dist/` bundle locally.
+- Added Sprint 9A playable Daisy's Cafe and police kiosk scenes using the generated location art.
+- Updated map routing so Daisy's Cafe enters the cafe scene and the police kiosk enters a real scene after filing `invalid_alibi`.
+- Moved alley unlocking to kiosk paperwork that requires Daisy's testimony plus the delivered Invalid Alibi.
+- Added unit and browser coverage for cafe/kiosk scene loading, save restore, and the expanded story chain.
+- Added a Sprint 8 title screen with Start Game and save-aware Continue controls.
+- Added explicit `localStorage` save/load through the toolbar Save action and `S` shortcut.
+- Added skippable typewriter dialogue with reduced-motion instant rendering.
+- Added short scene fade transitions, dev hover-highlight polish, and placeholder WebAudio UI cues.
+- Added unit and browser coverage for save restoration, title flow, typewriter skipping, and continued scene routing.
 - Added a fullscreen toolbar option and keyboard shortcut for the game container.
 - Added an `x` close button to Hazel's suitcase inventory panel.
 - Added Sprint 7 puzzle progression from suspicious footprints and cafe exterior investigation through pigeon exchange, invalid alibi filing, and alley unlock.

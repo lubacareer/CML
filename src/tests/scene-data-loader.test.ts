@@ -33,4 +33,26 @@ describe('SceneDataLoader', () => {
             'bicycle'
         ]));
     });
+
+    it('loads cafe and police kiosk story scenes', () => {
+        const cafe = loadSceneData('cafe');
+        const policeKiosk = loadSceneData('police-kiosk');
+
+        expect(cafe).toMatchObject({
+            id: 'cafe',
+            backgroundKey: 'cafe'
+        });
+        expect(cafe.hotspots.map((hotspot) => hotspot.id)).toEqual(expect.arrayContaining([
+            'daisy',
+            'coffee_counter'
+        ]));
+        expect(policeKiosk).toMatchObject({
+            id: 'police-kiosk',
+            backgroundKey: 'police-kiosk'
+        });
+        expect(policeKiosk.hotspots.map((hotspot) => hotspot.id)).toEqual(expect.arrayContaining([
+            'kiosk_paperwork_missing_testimony',
+            'kiosk_paperwork'
+        ]));
+    });
 });

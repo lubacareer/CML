@@ -5,4 +5,5 @@ test('game shell loads with a visible Phaser canvas', async ({ page }) => {
 
     await expect(page.getByTestId('game-root')).toBeVisible();
     await expect(page.locator('#game-container canvas')).toBeVisible();
+    await expect(page.getByTestId('title-screen')).toBeVisible();
 });

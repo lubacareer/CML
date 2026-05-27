@@ -1,4 +1,5 @@
 import type { DialogueView } from '../game/types';
+import { playAudioCue } from '../systems/AudioCueSystem';
 
 interface DialogueBoxCallbacks {
     onAdvance: () => void;
@@ -13,6 +14,8 @@ export class DialogueBox {
     private readonly choicesElement: HTMLElement;
     private readonly progressElement: HTMLElement;
     private view?: DialogueView;
+    private typewriterTimer?: number;
+    private renderedLine = '';
 
     constructor(
         parent: HTMLElement,
@@ -52,14 +55,34 @@ export class DialogueBox {
             return;
         }
 
+        if (this.completeLineIfTyping()) {
+            playAudioCue('dialogue');
+            return;
+        }
+
+        playAudioCue('dialogue');
         this.callbacks.onAdvance();
     }
 
     close() {
+        this.clearTypewriter();
         this.root.hidden = true;
         this.view = undefined;
+        this.renderedLine = '';
         this.clearChoices();
         this.callbacks.onClose();
+    }
+
+    completeLineIfTyping() {
+        if (!this.view || this.renderedLine === this.view.line) {
+            return false;
+        }
+
+        this.clearTypewriter();
+        this.renderedLine = this.view.line;
+        this.lineElement.textContent = this.view.line;
+        this.renderChoices();
+        return true;
     }
 
     isOpen() {
@@ -67,6 +90,7 @@ export class DialogueBox {
     }
 
     destroy() {
+        this.clearTypewriter();
         this.root.removeEventListener('click', this.handleClick);
         this.root.remove();
     }
@@ -77,9 +101,45 @@ export class DialogueBox {
         }
 
         this.speakerElement.textContent = this.view.speaker;
-        this.lineElement.textContent = this.view.line;
         this.progressElement.textContent = `${this.view.lineIndex + 1}/${this.view.lineCount}`;
-        this.renderChoices();
+        this.clearChoices();
+        this.renderLine();
+    }
+
+    private renderLine() {
+        if (!this.view) {
+            return;
+        }
+
+        this.clearTypewriter();
+
+        if (this.prefersReducedMotion() || this.view.line.length <= 1) {
+            this.renderedLine = this.view.line;
+            this.lineElement.textContent = this.view.line;
+            this.renderChoices();
+            return;
+        }
+
+        this.renderedLine = '';
+        this.lineElement.textContent = '';
+        this.typeNextCharacter();
+    }
+
+    private typeNextCharacter() {
+        if (!this.view) {
+            return;
+        }
+
+        const nextIndex = this.renderedLine.length + 1;
+        this.renderedLine = this.view.line.slice(0, nextIndex);
+        this.lineElement.textContent = this.renderedLine;
+
+        if (this.renderedLine === this.view.line) {
+            this.renderChoices();
+            return;
+        }
+
+        this.typewriterTimer = window.setTimeout(() => this.typeNextCharacter(), 4);
     }
 
     private renderChoices() {
@@ -102,6 +162,19 @@ export class DialogueBox {
 
     private clearChoices() {
         this.choicesElement.replaceChildren();
+    }
+
+    private clearTypewriter() {
+        if (this.typewriterTimer === undefined) {
+            return;
+        }
+
+        window.clearTimeout(this.typewriterTimer);
+        this.typewriterTimer = undefined;
+    }
+
+    private prefersReducedMotion() {
+        return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
     }
 
     private handleClick = () => {

@@ -2,6 +2,7 @@ import { Scene } from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
 import type { AssetPreviewId } from '../game/types';
 import { gameState } from '../systems/GameState';
+import { fadeInScene, transitionToScene } from '../systems/SceneTransitionSystem';
 
 interface AssetPreviewSprite {
     key: string;
@@ -89,11 +90,12 @@ export class AssetPreviewScene extends Scene {
 
         this.events.once('shutdown', this.cleanup, this);
         this.events.once('destroy', this.cleanup, this);
+        fadeInScene(this);
         this.publishDebugState();
     }
 
     private returnToMap() {
-        this.scene.start('MapScene');
+        transitionToScene(this, 'MapScene');
     }
 
     private publishDebugState() {

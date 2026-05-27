@@ -18,6 +18,7 @@ New backgrounds should preserve a clear lower-third walkable lane and avoid plac
 - Runtime background copies live under `public/assets/backgrounds/` and are normalized to `1280x720`.
 - Character and object source generations are preserved under `source-assets/characters/` or `source-assets/items/`.
 - Runtime NPC/item cutouts live under `public/assets/characters/npcs/` and `public/assets/items/`.
+- Runtime toolbar icons live under `public/assets/ui/icons/` as compact transparent `64x64` PNGs.
 - Character sprites should use transparent PNGs, bottom-aligned framing, and enough padding to avoid cropped hands, feet, feathers, or props.
 - Chroma-key source sprites should use a flat removable key color that does not appear in the subject.
 

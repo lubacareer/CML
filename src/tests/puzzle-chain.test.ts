@@ -27,7 +27,7 @@ const getStreetHotspot = (id: string) => {
     return hotspot;
 };
 
-describe('Sprint 7 puzzle chain', () => {
+describe('Sprint 9A puzzle chain', () => {
     it('updates investigation flags and awards the invalid alibi in order', () => {
         const state = new GameState({
             flags: {
@@ -80,7 +80,7 @@ describe('Sprint 7 puzzle chain', () => {
         });
     });
 
-    it('unlocks the alley after filing the invalid alibi at the police kiosk', () => {
+    it('opens the police kiosk without unlocking the alley after filing the invalid alibi', () => {
         const state = new GameState({
             flags: {
                 case001_started: true,
@@ -104,10 +104,49 @@ describe('Sprint 7 puzzle chain', () => {
 
         expect(state.hasFlag('police_kiosk_unlocked')).toBe(true);
         expect(state.hasFlag('invalid_alibi_delivered')).toBe(true);
+        expect(state.hasFlag('alley_unlocked')).toBe(false);
+    });
+
+    it('unlocks the alley from kiosk paperwork after Daisy testimony and invalid alibi delivery', () => {
+        const state = new GameState({
+            flags: {
+                case001_started: true,
+                map_unlocked: true,
+                invalid_alibi_found: true,
+                police_kiosk_unlocked: true,
+                invalid_alibi_delivered: true,
+                daisy_testimony_recorded: true
+            },
+            inventory: ['invalid_alibi']
+        });
+        const paperwork = loadSceneData('police-kiosk').hotspots.find(
+            (hotspot) => hotspot.id === 'kiosk_paperwork'
+        );
+        const alley = mapLocations.find((location) => location.id === 'narrow_alley');
+
+        expect(paperwork).toBeDefined();
+        expect(alley).toBeDefined();
+
+        applyInteraction(state, paperwork!.interactions.use, paperwork!.name);
+
         expect(state.hasFlag('alley_unlocked')).toBe(true);
         expect(resolveMapLocation(alley!, state.getFlags())).toEqual({
             type: 'preview',
             previewId: 'alley'
         });
+    });
+
+    it('shows missing testimony paperwork before Daisy gives her statement', () => {
+        const state = new GameState({
+            flags: {
+                police_kiosk_unlocked: true,
+                invalid_alibi_delivered: true
+            }
+        });
+        const visibleIds = getVisibleHotspots(loadSceneData('police-kiosk').hotspots, state.getFlags())
+            .map((hotspot) => hotspot.id);
+
+        expect(visibleIds).toContain('kiosk_paperwork_missing_testimony');
+        expect(visibleIds).not.toContain('kiosk_paperwork');
     });
 });

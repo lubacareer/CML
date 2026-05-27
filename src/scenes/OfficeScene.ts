@@ -3,7 +3,8 @@ import type { GameObjects, Input } from 'phaser';
 import { getHazelAnimationKey, registerHazelAnimations } from '../game/characterAnimations';
 import { DEBUG_HOTSPOTS, GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
 import { HAZEL_TEXTURE_KEY } from '../game/hazelAnimationConfig';
-import type { DialogueView, GameSceneData, HotspotData, InteractionVerb, SceneExitData, SceneId } from '../game/types';
+import type { DialogueView, GameSceneData, HotspotData, InteractionVerb, SceneExitData } from '../game/types';
+import { playAudioCue } from '../systems/AudioCueSystem';
 import { DialogueSystem } from '../systems/DialogueSystem';
 import { toggleGameFullscreen } from '../systems/FullscreenSystem';
 import { gameState } from '../systems/GameState';
@@ -13,8 +14,11 @@ import { resolveCustomInteraction } from '../systems/InteractionSystem';
 import { findNavigationPath } from '../systems/NavigationSystem';
 import { PlayerController2D } from '../systems/PlayerController2D';
 import type { PlayerControllerSnapshot } from '../systems/PlayerController2D';
+import { SaveGameSystem } from '../systems/SaveGameSystem';
 import { findExitAtPoint, getAvailableExits } from '../systems/SceneExitSystem';
 import { loadSceneData } from '../systems/SceneDataLoader';
+import { getSceneKeyForSceneId } from '../systems/SceneKeySystem';
+import { fadeInScene, transitionToScene } from '../systems/SceneTransitionSystem';
 import { ActionToolbar, isInteractionVerbAction } from '../ui/ActionToolbar';
 import type { ToolbarAction } from '../ui/ActionToolbar';
 import { DebugPanel } from '../ui/DebugPanel';
@@ -36,6 +40,7 @@ export class OfficeScene extends Scene {
     private hazelAnimationKey?: string;
     private dialogueSystem = new DialogueSystem();
     private inventorySystem = new InventorySystem(gameState);
+    private saveGameSystem = new SaveGameSystem();
     private dialogueBox?: DialogueBox;
     private actionToolbar?: ActionToolbar;
     private inventoryBar?: InventoryBar;
@@ -43,6 +48,7 @@ export class OfficeScene extends Scene {
     private hotspotDebugGraphics?: GameObjects.Graphics;
     private hotspotDebugLabels: GameObjects.Text[] = [];
     private hotspotDebugVisible = false;
+    private hoverHighlightGraphics?: GameObjects.Graphics;
     private hoverLabel?: GameObjects.Text;
 
     constructor() {
@@ -74,6 +80,7 @@ export class OfficeScene extends Scene {
             void this.toggleFullscreen();
         });
         this.input.keyboard?.on('keydown-M', this.openMap, this);
+        this.input.keyboard?.on('keydown-S', this.saveGame, this);
         window.addEventListener('keydown', this.handleInventoryKeyDown);
 
         if (DEBUG_HOTSPOTS) {
@@ -82,6 +89,7 @@ export class OfficeScene extends Scene {
 
         this.events.once('shutdown', this.destroyDomOverlays, this);
         this.events.once('destroy', this.destroyDomOverlays, this);
+        fadeInScene(this);
         this.publishDebugState();
     }
 
@@ -164,6 +172,8 @@ export class OfficeScene extends Scene {
 
             this.hotspotDebugLabels.push(label);
         });
+
+        this.hoverHighlightGraphics = this.add.graphics().setDepth(19);
     }
 
     private toggleHotspotDebugOverlay() {
@@ -233,6 +243,7 @@ export class OfficeScene extends Scene {
 
         if (hotspot) {
             this.game.canvas.style.cursor = 'pointer';
+            this.showHoverHighlight(hotspot);
             this.positionHoverLabel(pointer, hotspot.name);
             return;
         }
@@ -246,6 +257,7 @@ export class OfficeScene extends Scene {
 
         if (sceneExit) {
             this.game.canvas.style.cursor = 'pointer';
+            this.showHoverHighlight(sceneExit);
             this.positionHoverLabel(pointer, `Go to ${sceneExit.targetScene}`);
             return;
         }
@@ -265,7 +277,20 @@ export class OfficeScene extends Scene {
 
     private hideHoverLabel() {
         this.game.canvas.style.cursor = 'default';
+        this.hoverHighlightGraphics?.clear();
         this.hoverLabel?.setVisible(false);
+    }
+
+    private showHoverHighlight(bounds: { x: number; y: number; width: number; height: number }) {
+        if (!DEBUG_HOTSPOTS) {
+            return;
+        }
+
+        this.hoverHighlightGraphics?.clear();
+        this.hoverHighlightGraphics?.lineStyle(2, 0xf3c14b, 0.9);
+        this.hoverHighlightGraphics?.fillStyle(0xf3c14b, 0.1);
+        this.hoverHighlightGraphics?.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        this.hoverHighlightGraphics?.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
     }
 
     private performHotspotInteraction(hotspot: HotspotData, verb = hotspot.defaultVerb) {
@@ -331,7 +356,7 @@ export class OfficeScene extends Scene {
 
     private transitionToScene(exit: SceneExitData) {
         this.hideHoverLabel();
-        this.scene.start(this.getSceneKey(exit.targetScene));
+        transitionToScene(this, getSceneKeyForSceneId(exit.targetScene));
     }
 
     private handleToolbarAction = (action: ToolbarAction) => {
@@ -358,6 +383,11 @@ export class OfficeScene extends Scene {
 
         if (action === 'inventory') {
             this.toggleInventory();
+            return;
+        }
+
+        if (action === 'save') {
+            this.saveGame();
             return;
         }
 
@@ -403,7 +433,24 @@ export class OfficeScene extends Scene {
             return;
         }
 
-        this.scene.start('MapScene');
+        transitionToScene(this, 'MapScene');
+    }
+
+    private saveGame() {
+        if (this.dialogueBox?.isOpen()) {
+            return;
+        }
+
+        const saved = this.saveGameSystem.save(gameState.getSnapshot());
+
+        playAudioCue('save');
+        this.renderDialogueView(
+            this.dialogueSystem.startText('Hazel', [
+                saved
+                    ? 'Progress saved. The clues are now slightly less likely to wander off.'
+                    : 'The save file refused to cooperate. Suspicious.'
+            ])
+        );
     }
 
     private async toggleFullscreen() {
@@ -428,18 +475,6 @@ export class OfficeScene extends Scene {
                 ])
             );
         }
-    }
-
-    private getSceneKey(sceneId: SceneId) {
-        if (sceneId === 'street') {
-            return 'StreetScene';
-        }
-
-        if (sceneId === 'map') {
-            return 'MapScene';
-        }
-
-        return 'OfficeScene';
     }
 
     private publishDebugState() {
@@ -469,6 +504,10 @@ export class OfficeScene extends Scene {
     }
 
     private advanceDialogue() {
+        if (this.dialogueBox?.completeLineIfTyping()) {
+            return;
+        }
+
         this.renderDialogueView(this.dialogueSystem.advance());
     }
 

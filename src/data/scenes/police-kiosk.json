@@ -1,0 +1,152 @@
+{
+  "id": "police-kiosk",
+  "backgroundKey": "police-kiosk",
+  "playerStart": { "x": 600, "y": 650 },
+  "walkBaselineY": 650,
+  "navigation": {
+    "walkableAreas": [
+      {
+        "id": "kiosk_floor",
+        "points": [
+          { "x": 40, "y": 520 },
+          { "x": 1235, "y": 520 },
+          { "x": 1280, "y": 705 },
+          { "x": 0, "y": 705 }
+        ]
+      }
+    ],
+    "nodes": [
+      { "id": "left_floor", "x": 210, "y": 670, "links": ["center_floor"] },
+      { "id": "center_floor", "x": 615, "y": 670, "links": ["left_floor", "right_floor"] },
+      { "id": "right_floor", "x": 1020, "y": 670, "links": ["center_floor"] }
+    ]
+  },
+  "exits": [
+    {
+      "id": "kiosk_map_exit",
+      "targetScene": "map",
+      "x": 0,
+      "y": 0,
+      "width": 180,
+      "height": 720
+    }
+  ],
+  "hotspots": [
+    {
+      "id": "kiosk_window",
+      "name": "Kiosk window",
+      "x": 430,
+      "y": 135,
+      "width": 390,
+      "height": 300,
+      "defaultVerb": "look",
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "The kiosk window has a slot for forms, stamps, and very small emotional breakthroughs."
+        },
+        "talk": {
+          "type": "text",
+          "text": "A clerk behind the glass says, 'One contradiction per form, please.'"
+        }
+      }
+    },
+    {
+      "id": "kiosk_paperwork_missing_testimony",
+      "name": "Unconvinced paperwork",
+      "x": 710,
+      "y": 455,
+      "width": 260,
+      "height": 155,
+      "defaultVerb": "use",
+      "requiredFlag": "invalid_alibi_delivered",
+      "hiddenWhenFlag": "daisy_testimony_recorded",
+      "sprite": {
+        "key": "invalid-alibi",
+        "x": 930,
+        "y": 635,
+        "scale": 0.1,
+        "depth": 4
+      },
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "The Invalid Alibi is stamped, but the paperwork is still looking for a witness statement."
+        },
+        "use": {
+          "type": "text",
+          "text": "The kiosk refuses to unlock the alley until Daisy's testimony is attached. Hazel underlines 'witness paperwork' with professional annoyance."
+        }
+      },
+      "itemInteractions": {
+        "invalid_alibi": {
+          "type": "text",
+          "text": "The kiosk refuses to unlock the alley until Daisy's testimony is attached. Hazel underlines 'witness paperwork' with professional annoyance."
+        }
+      }
+    },
+    {
+      "id": "kiosk_paperwork",
+      "name": "Ready paperwork",
+      "x": 710,
+      "y": 455,
+      "width": 260,
+      "height": 155,
+      "defaultVerb": "use",
+      "requiredFlags": ["invalid_alibi_delivered", "daisy_testimony_recorded"],
+      "hiddenWhenFlag": "alley_unlocked",
+      "sprite": {
+        "key": "invalid-alibi",
+        "x": 930,
+        "y": 635,
+        "scale": 0.1,
+        "depth": 4
+      },
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "Daisy's statement and the Invalid Alibi are finally in the same stack. The stack looks nervous."
+        },
+        "use": {
+          "type": "effects",
+          "effects": [
+            { "type": "setFlag", "flag": "alley_unlocked" }
+          ],
+          "text": "Hazel attaches Daisy's testimony to the Invalid Alibi. The kiosk stamps APPROVED so hard the narrow alley unlocks out of fear."
+        }
+      },
+      "itemInteractions": {
+        "invalid_alibi": {
+          "type": "effects",
+          "effects": [
+            { "type": "setFlag", "flag": "alley_unlocked" }
+          ],
+          "text": "Hazel attaches Daisy's testimony to the Invalid Alibi. The kiosk stamps APPROVED so hard the narrow alley unlocks out of fear."
+        }
+      }
+    },
+    {
+      "id": "alley_permit",
+      "name": "Alley permit",
+      "x": 710,
+      "y": 455,
+      "width": 260,
+      "height": 155,
+      "defaultVerb": "look",
+      "requiredFlag": "alley_unlocked",
+      "sprite": {
+        "key": "invalid-alibi",
+        "x": 930,
+        "y": 635,
+        "scale": 0.1,
+        "depth": 4
+      },
+      "interactions": {
+        "look": {
+          "type": "text",
+          "text": "The permit now says the alley may be investigated. The alley has not been consulted."
+        }
+      }
+    }
+  ]
+}

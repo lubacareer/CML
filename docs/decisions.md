@@ -16,7 +16,7 @@
 - Render dialogue and debug status with DOM overlays so text remains readable and Playwright can assert UI state reliably.
 - Keep unsupported verbs and custom actions as visible fallback dialogue instead of silently failing.
 - Use Phaser's canvas renderer for the first 2D slice to avoid unnecessary WebGL context churn in headless tests.
-- Keep hotspot debug rectangles hidden by default in development and expose them with `H`; hover labels identify clickable objects without covering the art.
+- Keep hotspot debug rectangles hidden by default, expose them only when `VITE_CML_DEBUG_HOTSPOTS=true`, and keep hover labels as the normal clickable-object affordance.
 
 ## Sprint 2
 
@@ -69,3 +69,26 @@
 - Let selected inventory items persist into the map scene so `invalid_alibi` can be used on the police kiosk without adding a second map-specific toolbar.
 - Render Hazel's inventory as a DOM suitcase grid so item buttons stay accessible and Playwright-addressable while the Phaser playfield remains clear.
 - Add a compact generated Cold Coffee item icon only for the missing inventory-grid runtime art; leave the existing generated asset batch unchanged.
+
+## Sprint 8
+
+- Route `PreloadScene` into a DOM-backed title screen so Start Game and Continue remain accessible and easy to test.
+- Store explicit saves as versioned `GameStateSnapshot` records in `localStorage` under `cml.save.v1`; corrupted, missing, or version-mismatched saves are ignored without throwing.
+- Limit resume destinations to office, street, and map so preview-only scenes do not become save restore targets.
+- Keep scene fades, audio cues, and save persistence in small helper systems while Phaser scenes only route input and render feedback.
+- Use a skippable dialogue typewriter effect that respects reduced-motion preferences and does not expose choices before the active line finishes.
+- Keep hover labels as the standard player-facing affordance, with subtle debug-only hotspot/location highlights for development.
+
+## Sprint 9A
+
+- Insert a story-scene expansion before demo packaging because the generated cafe and police kiosk assets are now ready for real gameplay.
+- Add `cafe` and `police-kiosk` as real scene IDs and resumable save destinations; keep the alley as a preview until the next story increment.
+- Use a shared simple story-location scene shell for cafe and kiosk so the new scenes reuse toolbar, inventory, save, map, fades, movement, and data-driven hotspots without refactoring office or street.
+- Keep the office coffee pickup as an optional shortcut, while making Daisy's Cafe the plan-aligned Cold Coffee source.
+- Split the police kiosk step into filing `invalid_alibi` on the map, then completing kiosk paperwork after Daisy's testimony to unlock the alley.
+
+## Sprint 9
+
+- Treat packaging as a documentation and validation sprint; do not generate new art unless a deployment-blocking asset gap appears.
+- Use Vite's production build plus `vite preview` as the static-hosting readiness check.
+- Document the current playable slice, known limitations, and next candidate sprint so the demo can be shared without extra explanation.
